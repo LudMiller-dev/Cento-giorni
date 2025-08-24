@@ -1,0 +1,175 @@
+<!DOCTYPE html><html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Marck+Script&display=swap" rel="stylesheet">
+    <title>Para Mia, en su día 🪻🩷</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #ffe6f0;
+            font-family: 'Marck Script', cursive;
+            color: #4d2c3d;
+            text-align: center;
+        }h1 {
+        margin-top: 30px;
+        font-size: 2.5em;
+        color: #d63384;
+    }
+
+    .contenedor {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 40px;
+    }
+
+    .envoltura-sobre {
+        position: relative;
+        width: 320px;
+        height: 220px;
+        background-color: #ffcce0;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        overflow: hidden;
+    }
+
+    .sobre {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background-color: #fff0f5;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .carta {
+        width: 90%;
+        height: 90%;
+        background-color: white;
+        border-radius: 8px;
+        padding: 20px;
+        overflow-y: auto;
+        box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .contenido p {
+        font-size: 1.1em;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    .corazon {
+        position: absolute;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%) rotate(-45deg);
+        width: 40px;
+        height: 40px;
+        background-color: #ff3366;
+        animation: latido 1s infinite;
+    }
+
+    .corazon::before,
+    .corazon::after {
+        content: "";
+        position: absolute;
+        width: 40px;
+        height: 40px;
+        background-color: #ff3366;
+        border-radius: 50%;
+    }
+
+    .corazon::before {
+        top: -20px;
+        left: 0;
+    }
+
+    .corazon::after {
+        left: 20px;
+        top: 0;
+    }
+
+    @keyframes latido {
+        0% { transform: scale(1) rotate(-45deg); }
+        25% { transform: scale(1.1) rotate(-45deg); }
+        50% { transform: scale(1) rotate(-45deg); }
+        75% { transform: scale(1.2) rotate(-45deg); }
+        100% { transform: scale(1) rotate(-45deg); }
+    }
+
+    code {
+        background: #ffe6f0;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.95em;
+        color: #c9184a;
+    }
+
+    @media screen and (max-width: 480px) {
+        .envoltura-sobre {
+            width: 90%;
+            height: auto;
+        }
+        .carta {
+            padding: 15px;
+        }
+        .contenido p {
+            font-size: 1em;
+        }
+    }
+</style>
+
+</head>
+<body>
+    <h1>¡Feliz Día de la Novia, mi amor! 🐯❤️‍🔥</h1>
+    <div class="contenedor">
+        <div class="envoltura-sobre">
+            <div class="sobre">
+                <div class="carta">
+                    <div class="contenido">
+                        <strong>Hola, mi niña</strong>
+                        <p>
+                            Hoy es el día oficial de las novias, pero para mí, cada día es una razón para celebrar que te tengo en mi vida. Al principio, mi amor era un misterio, como esa carta que te envié y que tardaste 1 mes en descifrar. Ahora es tan real y claro como cada palabra que te escribo.<br><br>Aún con un océano de distancia, mi corazón late más rápido cuando veo una notificación tuya. Y aunque no estamos juntos para celebrarlo, tu presencia me da una paz y una alegría que no podría describir. Siempre estaré esperando aquel día en que podamos volver a vernos.<br><br>
+
+                        Gracias por ser mi alegría, mi confidente y la persona que me enseñó a amar de verdad. Gracias por ser la razón de mi sonrisa a diario.<br><br>
+
+                        Feliz Día de la Novia, Mia. <br> Con todo mi código (y mi corazón), <br> Tu niño enamorado (E)<br>
+                        <span style="font-size: 0.9em; color: grey;">PD: Si esta carta fuera un programa, su salida sería:</span> <br> <code>"Te amo, y siempre te elegiré."</code>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="corazon"></div>
+    </div>
+</div>
+
+<div style="text-align:center; margin-top: 10px;">
+    <span id="iconoMusica" style="font-size: 1.5em; cursor: pointer;">⏯️🎵🎶</span>
+    <audio id="miMusica" src="Musique.mp3" loop style="display:none;"></audio>
+</div>
+
+<script>
+    const iconoMusica = document.getElementById('iconoMusica');
+    const miMusica = document.getElementById('miMusica');
+    let reproduciendo = false;
+
+    iconoMusica.addEventListener('click', function() {
+        if (reproduciendo) {
+            miMusica.pause();
+            reproduciendo = false;
+            iconoMusica.textContent = '⏯️🎶';
+        } else {
+            miMusica.play();
+            reproduciendo = true;
+            iconoMusica.textContent = '⏸️💽';
+        }
+    });
+</script>
+
+</body>
+</html>
