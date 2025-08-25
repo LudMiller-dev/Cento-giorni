@@ -3,62 +3,55 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Racha de 100 días — Amor ❤️🔥 (Procedural)</title>
+  <title>Racha de 100 días — Amor ❤️🔥</title>
   <style>
-    :root{
-      --bg:#0b0f12; --text:#e8f5e9; --muted:#a1b0a8; --gold:#ffd166; --pink:#ff6fb3;
-      --flame1:#ffcc33; --flame2:#ff8833; --flame3:#ff5533;
-    }
-    body{margin:0; height:100%; display:grid; place-items:center; background:radial-gradient(1000px 1000px at 50% 20%, #101820 0%, var(--bg) 70%); font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,'Noto Sans',sans-serif; color:var(--text); overflow:hidden}
-    .stage{ position:relative; width:min(640px,90vw); aspect-ratio:1/1.5; border-radius:28px; padding:28px; box-shadow:0 20px 80px rgba(0,0,0,.6), inset 0 0 60px rgba(255,136,51,.08); background:linear-gradient(180deg, rgba(255,136,51,.05), rgba(0,0,0,.2)); overflow:hidden; }
-    .top-hint{ font-size:12px; color:var(--muted); letter-spacing:.05em; text-align:center; margin-bottom:6px; }
+  :root{
+    --bg:#0b0f12; --text:#e8f5e9; --muted:#a1b0a8; --gold:#ffd166; --pink:#ff6fb3;
+    --flame-glow: rgba(255,145,0,.55);
+  }
+  html,body{height:100%}
+  body{margin:0; height:100%; display:grid; place-items:center; background:radial-gradient(1000px 1000px at 50% 20%, #101820 0%, var(--bg) 70%); font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,'Noto Sans',sans-serif; color:var(--text); overflow:hidden}
+  .stage{ position:relative; width:min(640px,90vw); aspect-ratio:1/1.5; border-radius:28px; padding:28px; box-shadow:0 20px 80px rgba(0,0,0,.6), inset 0 0 60px rgba(58,94,78,.18); background:linear-gradient(180deg, rgba(10,180,90,.05), rgba(0,0,0,.2)); overflow:hidden; }
+  .content{ position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; gap:10px }
+  .top-hint{ font-size:12px; color:var(--muted); letter-spacing:.05em; text-align:center; margin-bottom:2px; }
 
-    /* Procedural Flame */
-    .flame-wrap{ position:relative; width:160px; height:220px; margin:0 auto; cursor:pointer; }
-    .flame{
-      position:absolute; bottom:0; left:50%; transform:translateX(-50%);
-      width:120px; height:160px; border-radius:50% 50% 50% 50%/60% 60% 40% 40%;
-      background:radial-gradient(circle at 50% 60%, var(--flame1) 0%, var(--flame2) 40%, var(--flame3) 100%);
-      animation:flicker 1.2s infinite ease-in-out alternate;
-      filter:blur(1px) drop-shadow(0 0 20px rgba(255,140,0,.6));
-    }
-    .flame:before{
-      content:""; position:absolute; top:10px; left:50%; transform:translateX(-50%);
-      width:60px; height:90px; border-radius:50%;
-      background:radial-gradient(circle at 50% 70%, #fff6 0%, transparent 80%);
-      animation:flickerInner 1s infinite ease-in-out alternate;
-    }
-    @keyframes flicker{ from{transform:translateX(-50%) scaleY(1);} to{transform:translateX(-50%) scaleY(1.08);} }
-    @keyframes flickerInner{ from{opacity:.4;} to{opacity:.8;} }
+  /* Flame area */
+  .flame-box{ position:relative; width:170px; height:210px; display:grid; place-items:center; margin-top:2px; cursor:pointer }
+  .halo{ position:absolute; width:160px; height:160px; border-radius:50%; background: radial-gradient(closest-side, rgba(255,196,0,.35), rgba(255,140,0,.18) 55%, transparent 70%); filter: blur(14px); opacity:.45; transform:scale(.9); animation: halo-breathe 2.8s ease-in-out infinite; }
+  @keyframes halo-breathe{ 0%,100%{ transform:scale(.9); opacity:.35 } 50%{ transform:scale(1.06); opacity:.55 } }
 
-    /* Sparks */
-    .spark{ position:absolute; width:6px; height:6px; background:var(--flame1); border-radius:50%; filter:blur(1px); animation:sparkUp 2s linear forwards; }
-    @keyframes sparkUp{ from{ transform:translateY(0) scale(1); opacity:1; } to{ transform:translateY(-180px) scale(.5); opacity:0; } }
+  .flame-img{ width:120px; height:auto; filter: drop-shadow(0 0 14px var(--flame-glow)); animation: idle-flicker 1.25s ease-in-out infinite; transform-origin:50% 85%; }
+  @keyframes idle-flicker{ 0%{ transform:scaleY(1) rotate(0deg) } 50%{ transform:scaleY(1.05) rotate(-1.2deg) } 100%{ transform:scaleY(1) rotate(0deg) } }
 
-    .counter-area{ margin-top:24px; text-align:center; transition:.5s; }
-    .counter-area.done{opacity:0; transform:translateY(-6px)}
-    .label{ font-size:14px; color:var(--muted); letter-spacing:.14em; text-transform:uppercase }
-    .count{ font-size:84px; line-height:1; font-weight:800; letter-spacing:.02em; margin:6px 0 0; background:linear-gradient(180deg, #fff, #ffeab7 40%, #ffd166 60%, #ffbb66 100%); -webkit-background-clip:text; background-clip:text; color:transparent; text-shadow:0 6px 40px rgba(255,136,51,.25); transition: transform .15s ease; }
-    .suffix{ font-size:18px; color:var(--muted); margin-top:4px }
+  /* Sparks (CSS+JS) */
+  .spark{ position:absolute; bottom:82px; left:50%; width:7px; height:7px; background:#ffd166; border-radius:50%; filter:blur(.5px); opacity:0; transform: translate(-50%,0) scale(1); animation: sparkUp 1.8s linear forwards; }
+  @keyframes sparkUp{ 0%{ opacity:1; transform:translate(-50%, 0) scale(1) } 80%{ opacity:.8 } 100%{ opacity:0; transform:translate(-50%, -180px) scale(.55) }
+  }
 
-    .message{ position:absolute; bottom:40px; width:100%; text-align:center; opacity:0; transform:translateY(12px); transition:.8s; }
-    .message.show{ opacity:1; transform:none }
-    .message h1{ font-size: clamp(28px,6vw,44px); margin:0 0 6px; font-weight:900; letter-spacing:.02em; background:linear-gradient(90deg, var(--gold), #fff, var(--pink)); -webkit-background-clip:text; background-clip:text; color:transparent; text-shadow:0 8px 40px rgba(255,214,102,.35); }
-    .message p{ margin:0; color:var(--muted) }
+  .counter-area{ margin-top:6px; text-align:center; transition:.5s; }
+  .counter-area.done{opacity:0; transform:translateY(-6px)}
+  .label{ font-size:12px; color:var(--muted); letter-spacing:.18em; text-transform:uppercase }
+  .count{ font-size:84px; line-height:1; font-weight:800; letter-spacing:.02em; margin:6px 0 0; background:linear-gradient(180deg, #fff, #eaffd7 40%, #baff96 60%, #6ee7b7 100%); -webkit-background-clip:text; background-clip:text; color:transparent; text-shadow:0 6px 40px rgba(50,215,75,.25); transition: transform .12s ease; }
+  .suffix{ font-size:16px; color:var(--muted); margin-top:0 }
 
-    #confetti{ position:absolute; inset:0; z-index:0; }
-    .content{ position:relative; z-index:1; display:flex; flex-direction:column; align-items:center }
-  </style>
+  .message{ position:absolute; bottom:40px; width:100%; text-align:center; opacity:0; transform:translateY(12px); transition:.8s; }
+  .message.show{ opacity:1; transform:none }
+  .message h1{ font-size: clamp(28px,6vw,44px); margin:0 0 6px; font-weight:900; letter-spacing:.02em; background:linear-gradient(90deg, var(--gold), #fff, var(--pink)); -webkit-background-clip:text; background-clip:text; color:transparent; text-shadow:0 8px 40px rgba(255,214,102,.35); }
+  .message p{ margin:0; color:var(--muted) }
+
+  #confetti{ position:absolute; inset:0; z-index:0; }
+</style>
 </head>
 <body>
   <div class="stage" id="stage">
     <canvas id="confetti"></canvas>
     <div class="content">
       <div class="top-hint">Toca la llama para encender la racha</div>
-      <div class="flame-wrap" id="flameWrap" title="Toca para encender la racha">
-        <!-- Usamos el SVG de la llama extraído del HAR -->
-        <img id="flameSVG" src="flame_like_1.svg" alt="Llama Duolingo" style="width:120px;height:auto;filter: drop-shadow(0 0 14px rgba(255,145,0,.45));"/>
+      <div class="flame-box" id="flameBox" title="Toca para encender la racha">
+        <div class="halo" id="halo"></div>
+        <img id="flameSVG" class="flame-img" src="flame_like_1.svg" alt="Llama Duolingo"/>
       </div>
+        <img id="flameSVG" src="flame_like_1.svg" alt="Llama Duolingo"/>
       </div>
       <div class="counter-area" id="counterArea">
         <div class="label">Racha</div>
@@ -73,48 +66,56 @@
   </div>
 
   <script>
-    const TARGET = 100, DURATION_MS = 2500, EASE = t => 1 - Math.pow(1 - t, 3);
-    const countEl=document.getElementById('count');
-    const msg=document.getElementById('message');
-    const counterArea=document.getElementById('counterArea');
-    const flameWrap=document.getElementById('flameWrap');
+  // ===== Params & helpers =====
+  const TARGET=100, DURATION=2500, ease=t=>1-Math.pow(1-t,3);
+  const countEl=document.getElementById('count');
+  const msg=document.getElementById('message');
+  const counterArea=document.getElementById('counterArea');
+  const flameBox=document.getElementById('flameBox');
+  const flame=document.getElementById('flameSVG');
+  const halo=document.getElementById('halo');
 
-    let running=false;
-    function pulse(){ countEl.style.transform='scale(1.06)'; setTimeout(()=>countEl.style.transform='scale(1)',140); }
+  let running=false, hue=0, hueRAF=null;
+  function pulse(){ countEl.style.transform='scale(1.06)'; setTimeout(()=>countEl.style.transform='scale(1)',120); }
 
-    function animateCount(){
-      if(running) return; running=true;
-      const start=performance.now();
-      (function loop(now){
-        const t=Math.min((now-start)/DURATION_MS,1);
-        const v=Math.round(TARGET*EASE(t));
-        countEl.textContent=v; if(v%5===0) pulse();
-        if(t<1) requestAnimationFrame(loop); else celebration();
-      })(start);
-      spawnSparks();
-    }
+  function startHue(){
+    cancelAnimationFrame(hueRAF);
+    const tick=()=>{ hue=(hue+0.4)%360; flame.style.filter=`drop-shadow(0 0 14px var(--flame-glow)) hue-rotate(${hue}deg)`; hueRAF=requestAnimationFrame(tick); };
+    hueRAF=requestAnimationFrame(tick);
+  }
+  function stopHue(){ cancelAnimationFrame(hueRAF); flame.style.filter='drop-shadow(0 0 14px var(--flame-glow))'; }
 
-    function celebration(){ counterArea.classList.add('done'); msg.classList.add('show'); burstConfetti(); }
+  function animateCount(){
+    if(running) return; running=true; startHue();
+    // stronger halo pulse
+    halo.animate([{transform:'scale(.9)',opacity:.45},{transform:'scale(1.2)',opacity:.75},{transform:'scale(.95)',opacity:.5}],{duration:800,easing:'ease-out'});
 
-    // Sparks generator
-    function spawnSparks(){
-      let i=0; const interval=setInterval(()=>{
-        const s=document.createElement('div'); s.className='spark';
-        s.style.left=(70+Math.random()*20)+'px'; s.style.bottom='90px';
-        flameWrap.appendChild(s);
-        setTimeout(()=>s.remove(),2000);
-        if(++i>80) clearInterval(interval);
-      },120);
-    }
+    const start=performance.now();
+    (function loop(now){
+      const t=Math.min((now-start)/DURATION,1); const v=Math.round(TARGET*ease(t));
+      if(v!==+countEl.textContent){ countEl.textContent=v; if(v%5===0) pulse(); spawnSpark(); }
+      if(t<1) requestAnimationFrame(loop); else celebration();
+    })(start);
+  }
 
-    // Confetti
-    const canvas=document.getElementById('confetti'); const ctx=canvas.getContext('2d');
-    let W,H,parts=[]; function resize(){W=canvas.width=canvas.offsetWidth;H=canvas.height=canvas.offsetHeight;} window.addEventListener('resize',resize,{passive:true}); resize();
-    function spawn(n=200){for(let i=0;i<n;i++){parts.push({x:W/2,y:H*0.25,vx:(Math.random()-0.5)*6,vy:(Math.random()*-3)-2,g:0.08+Math.random()*0.08,s:3+Math.random()*3,r:Math.random()*Math.PI,vr:(Math.random()-0.5)*0.2,color:['#ffd166','#ff6fb3','#ffffff','#ff8833','#7affc1'][Math.floor(Math.random()*5)]});}}
-    (function step(){ctx.clearRect(0,0,W,H);parts.forEach(p=>{p.vy+=p.g;p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.r);ctx.fillStyle=p.color;ctx.fillRect(-p.s/2,-p.s/2,p.s,p.s);ctx.restore();}); for(let i=parts.length-1;i>=0;i--){if(parts[i].y>H+40)parts.splice(i,1);} requestAnimationFrame(step);})();
-    function burstConfetti(){spawn(240); setTimeout(()=>spawn(140),350); setTimeout(()=>spawn(140),700);}    
+  function celebration(){ counterArea.classList.add('done'); msg.classList.add('show'); burstConfetti(); stopHue(); }
 
-    flameWrap.addEventListener('click', animateCount);
-  </script>
+  // ===== Sparks =====
+  function spawnSpark(){
+    const s=document.createElement('div'); s.className='spark';
+    const offset=(Math.random()*30-15); s.style.left=`calc(50% + ${offset}px)`; s.style.background = Math.random()<.5 ? '#ffd166' : '#fff';
+    flameBox.appendChild(s); setTimeout(()=>s.remove(),1800);
+  }
+
+  // ===== Confetti (Canvas) =====
+  const canvas=document.getElementById('confetti'); const ctx=canvas.getContext('2d');
+  let W,H,parts=[]; function resize(){W=canvas.width=canvas.offsetWidth;H=canvas.height=canvas.offsetHeight;} addEventListener('resize',resize,{passive:true}); resize();
+  function spawn(n=220){for(let i=0;i<n;i++){parts.push({x:W/2,y:H*0.24,vx:(Math.random()-0.5)*6,vy:(Math.random()*-3)-2,g:.08+Math.random()*.08,s:3+Math.random()*3,r:Math.random()*Math.PI,vr:(Math.random()-0.5)*0.2,color:['#ffd166','#ff6fb3','#ffffff','#32d74b','#7affc1'][Math.floor(Math.random()*5)]});}}
+  (function step(){ctx.clearRect(0,0,W,H);parts.forEach(p=>{p.vy+=p.g;p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.r);ctx.fillStyle=p.color;ctx.fillRect(-p.s/2,-p.s/2,p.s,p.s);ctx.restore();}); for(let i=parts.length-1;i>=0;i--){if(parts[i].y>H+40)parts.splice(i,1);} requestAnimationFrame(step);})();
+  function burstConfetti(){spawn(260); setTimeout(()=>spawn(160),340); setTimeout(()=>spawn(160),690);}    
+
+  flameBox.addEventListener('click', animateCount);
+</script>
 </body>
 </html>
+
