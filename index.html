@@ -10,19 +10,18 @@
     }
     .wrap{ text-align:center; }
     .label{ font-size:14px; color:#aaa; letter-spacing:.15em; text-transform:uppercase; margin-bottom:6px; }
-    .count{ display:flex; justify-content:center; gap:6px; font-size:84px; font-weight:800; line-height:1; }
-    .digit{ min-width:.6em; text-align:center; opacity:.7; transition:opacity .25s ease, transform .25s ease, filter .25s ease; 
+    .count{ display:flex; justify-content:center; gap:6px; font-size:84px; font-weight:800; line-height:1; position:relative; }
+    .digit-col{ overflow:hidden; height:1em; }
+    .digit-inner{ display:flex; flex-direction:column; transition: transform .4s cubic-bezier(.25,.8,.4,1); }
+    .digit-inner span{ height:1em; display:flex; align-items:center; justify-content:center;
       background:linear-gradient(180deg,#fff,#ffe066 40%,#ff9e2c 70%,#ff7b00 100%);
       -webkit-background-clip:text; background-clip:text; color:transparent;
     }
-    .digit.lit{ opacity:1; transform:translateY(-6px) scale(1.1); filter:brightness(1.25);
-      text-shadow:0 0 14px rgba(255,230,102,.7),0 0 26px rgba(255,158,44,.55),0 0 40px rgba(255,123,0,.45);
-    }
-    .count.final .digit{ animation: finale .9s ease-out forwards; }
-    @keyframes finale{
-      0%{ transform:scale(1); filter:brightness(1); }
-      50%{ transform:scale(1.15); filter:brightness(1.3); }
-      100%{ transform:scale(1.05); filter:brightness(1.15); }
+    .count.final{ animation: finaleGlow 1s ease-out forwards; }
+    @keyframes finaleGlow{
+      0%{ text-shadow:0 0 0 rgba(255,230,102,0); }
+      50%{ text-shadow:0 0 25px rgba(255,230,102,.9),0 0 45px rgba(255,158,44,.7),0 0 70px rgba(255,123,0,.55); }
+      100%{ text-shadow:0 0 18px rgba(255,230,102,.7),0 0 34px rgba(255,158,44,.6),0 0 60px rgba(255,123,0,.5); }
     }
     .suffix{ font-size:18px; color:#aaa; margin-top:4px; }
     .message{ margin-top:20px; font-size:28px; font-weight:700; background:linear-gradient(90deg,#ffe066,#ff9e2c,#ff7b00); -webkit-background-clip:text; color:transparent; opacity:0; transform:translateY(10px); transition:.8s; }
@@ -37,9 +36,32 @@
     <div class="message" id="message">¡Felices 100 días, amor! ✨</div>
   </div>  <script>
     const TARGET=100; const countEl=document.getElementById('count'); const msg=document.getElementById('message');
-    function render(n){ countEl.innerHTML=''; for(const ch of String(n)){ const sp=document.createElement('span'); sp.className='digit'; sp.textContent=ch; countEl.appendChild(sp); } }
-    function animate(){ let i=0; function step(){ render(i); const digs=[...countEl.querySelectorAll('.digit')]; digs.forEach(d=>d.classList.add('lit')); if(i<TARGET){ i++; setTimeout(()=>{ digs.forEach(d=>d.classList.remove('lit')); step(); }, delay(i)); } else { countEl.classList.add('final'); msg.classList.add('show'); } } step(); }
+
+    function createColumn(){
+      const col=document.createElement('div'); col.className='digit-col';
+      const inner=document.createElement('div'); inner.className='digit-inner';
+      for(let i=0;i<10;i++){ const sp=document.createElement('span'); sp.textContent=i; inner.appendChild(sp);} 
+      col.appendChild(inner); return {col,inner};
+    }
+
+    function renderOdometer(n){
+      countEl.innerHTML='';
+      const s=String(n).padStart(3,'0');
+      for(let i=0;i<s.length;i++){
+        if(i===0 && s[i]==='0') continue; // ocultar centenas en 0
+        const {col,inner}=createColumn();
+        countEl.appendChild(col);
+        inner.style.transform=`translateY(-${parseInt(s[i])*100}%)`;
+      }
+    }
+
+    function animate(){ let i=0; renderOdometer(i);
+      function step(){ renderOdometer(i); if(i<TARGET){ i++; setTimeout(step,delay(i)); }
+        else { countEl.classList.add('final'); msg.classList.add('show'); }
+      } step(); }
+
     function delay(i){ let p=i/TARGET; return 40+80*(0.5-Math.cos(Math.PI*p)/2); }
+
     document.addEventListener('DOMContentLoaded',animate);
   </script></body>
 </html>
