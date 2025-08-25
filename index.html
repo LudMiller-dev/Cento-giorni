@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="es">
+<!DOCTYPE html><html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -11,36 +10,20 @@
   }
   html,body{height:100%}
   body{margin:0; height:100%; display:grid; place-items:center; background:radial-gradient(1000px 1000px at 50% 20%, #101820 0%, var(--bg) 70%); font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,'Noto Sans',sans-serif; color:var(--text); overflow:hidden}
-  .stage{ position:relative; width:min(640px,90vw); aspect-ratio:1/1.5; border-radius:28px; padding:28px; box-shadow:0 20px 80px rgba(0,0,0,.6), inset 0 0 60px rgba(58,94,78,.18); background:linear-gradient(180deg, rgba(10,180,90,.05), rgba(0,0,0,.2)); overflow:hidden; }
-  .content{ position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; gap:10px }
-  .top-hint{ font-size:12px; color:var(--muted); letter-spacing:.05em; text-align:center; margin-bottom:2px; }
+  .stage{ position:relative; width:min(640px,92vw); height:min(92vh,820px); border-radius:28px; padding:24px 20px; box-shadow:0 20px 80px rgba(0,0,0,.6), inset 0 0 60px rgba(58,94,78,.18); background:linear-gradient(180deg, rgba(10,180,90,.05), rgba(0,0,0,.2)); overflow:hidden; display:flex; flex-direction:column; justify-content:space-between; }
+  .content{ position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; gap:14px; flex:1; justify-content:center }
+  .top-hint{ font-size:12px; color:var(--muted); letter-spacing:.05em; text-align:center; margin-bottom:2px; opacity:.9 }/* Flame area */ .flame-box{ position:relative; width:170px; height:210px; display:grid; place-items:center; margin-top:2px; cursor:pointer } .halo{ position:absolute; width:160px; height:160px; border-radius:50%; background: radial-gradient(closest-side, rgba(255,196,0,.35), rgba(255,140,0,.18) 55%, transparent 70%); filter: blur(14px); opacity:.45; transform:scale(.9); animation: halo-breathe 2.8s ease-in-out infinite; } @keyframes halo-breathe{ 0%,100%{ transform:scale(.9); opacity:.35 } 50%{ transform:scale(1.06); opacity:.55 } }
 
-  /* Flame area */
-  .flame-box{ position:relative; width:170px; height:210px; display:grid; place-items:center; margin-top:2px; cursor:pointer }
-  .halo{ position:absolute; width:160px; height:160px; border-radius:50%; background: radial-gradient(closest-side, rgba(255,196,0,.35), rgba(255,140,0,.18) 55%, transparent 70%); filter: blur(14px); opacity:.45; transform:scale(.9); animation: halo-breathe 2.8s ease-in-out infinite; }
-  @keyframes halo-breathe{ 0%,100%{ transform:scale(.9); opacity:.35 } 50%{ transform:scale(1.06); opacity:.55 } }
+.flame-img{ width:120px; height:auto; filter: drop-shadow(0 0 14px var(--flame-glow)); animation: idle-flicker 1.25s ease-in-out infinite; transform-origin:50% 85%; } @keyframes idle-flicker{ 0%{ transform:scaleY(1) rotate(0deg) } 50%{ transform:scaleY(1.05) rotate(-1.2deg) } 100%{ transform:scaleY(1) rotate(0deg) } }
 
-  .flame-img{ width:120px; height:auto; filter: drop-shadow(0 0 14px var(--flame-glow)); animation: idle-flicker 1.25s ease-in-out infinite; transform-origin:50% 85%; }
-  @keyframes idle-flicker{ 0%{ transform:scaleY(1) rotate(0deg) } 50%{ transform:scaleY(1.05) rotate(-1.2deg) } 100%{ transform:scaleY(1) rotate(0deg) } }
+/* Sparks (CSS+JS) */ .spark{ position:absolute; bottom:82px; left:50%; width:7px; height:7px; background:#ffd166; border-radius:50%; filter:blur(.5px); opacity:0; transform: translate(-50%,0) scale(1); animation: sparkUp 1.8s linear forwards; } @keyframes sparkUp{ 0%{ opacity:1; transform:translate(-50%, 0) scale(1) } 80%{ opacity:.8 } 100%{ opacity:0; transform:translate(-50%, -180px) scale(.55) } }
 
-  /* Sparks (CSS+JS) */
-  .spark{ position:absolute; bottom:82px; left:50%; width:7px; height:7px; background:#ffd166; border-radius:50%; filter:blur(.5px); opacity:0; transform: translate(-50%,0) scale(1); animation: sparkUp 1.8s linear forwards; }
-  @keyframes sparkUp{ 0%{ opacity:1; transform:translate(-50%, 0) scale(1) } 80%{ opacity:.8 } 100%{ opacity:0; transform:translate(-50%, -180px) scale(.55) }
-  }
+.counter-area{ margin-top:6px; text-align:center; transition:.5s; } .counter-area.done{opacity:0; transform:translateY(-6px)} .label{ font-size:12px; color:var(--muted); letter-spacing:.18em; text-transform:uppercase } .count{ display:flex; justify-content:center; gap:6px; font-size:84px; line-height:1; font-weight:800; letter-spacing:.02em; margin:6px 0 0; background:linear-gradient(180deg,#fff6da,#ffe066 40%,#ff9e2c 70%,#ff7b00 100%); -webkit-background-clip:text; background-clip:text; color:transparent; text-shadow:0 6px 40px rgba(50,215,75,.25); transition: transform .12s ease; } .count.bump{ animation: countBump .28s ease-out; } .digit{ position:relative; display:inline-block; min-width:.6em; text-align:center; opacity:.72; transition: opacity .2s ease, transform .28s ease, filter .28s ease; } .digit.lit{ opacity:1; filter:brightness(1.25); text-shadow:0 0 14px rgba(255,230,102,.7),0 0 26px rgba(255,158,44,.55),0 0 40px rgba(255,123,0,.45); } .count.final-glow .digit{ animation: finale 900ms ease-out forwards; color:transparent; background:linear-gradient(180deg,#fff,#ffe066 40%,#ff9e2c 70%,#ff7b00 100%); -webkit-background-clip:text; background-clip:text; text-shadow:0 0 18px rgba(255,230,102,.9),0 0 34px rgba(255,158,44,.7),0 0 60px rgba(255,123,0,.55); } @keyframes countBump{ 0%{ transform:translateY(8px) scale(0.98) } 60%{ transform:translateY(0) scale(1.08) } 100%{ transform:translateY(0) scale(1) } } @keyframes finale{ 0%{ transform:scale(1); filter:brightness(1) } 50%{ transform:scale(1.12); filter:brightness(1.25) } 100%{ transform:scale(1.06); filter:brightness(1.15) } } .suffix{ font-size:16px; color:var(--muted); margin-top:0 }
 
-  .counter-area{ margin-top:6px; text-align:center; transition:.5s; }
-  .counter-area.done{opacity:0; transform:translateY(-6px)}
-  .label{ font-size:12px; color:var(--muted); letter-spacing:.18em; text-transform:uppercase }
-  .count{ font-size:84px; line-height:1; font-weight:800; letter-spacing:.02em; margin:6px 0 0; background:linear-gradient(180deg, #fff, #eaffd7 40%, #baff96 60%, #6ee7b7 100%); -webkit-background-clip:text; background-clip:text; color:transparent; text-shadow:0 6px 40px rgba(50,215,75,.25); transition: transform .12s ease; }
-  .suffix{ font-size:16px; color:var(--muted); margin-top:0 }
+.message{ position:absolute; bottom:40px; width:100%; text-align:center; opacity:0; transform:translateY(12px); transition:.8s; } .message.show{ opacity:1; transform:none } .message h1{ font-size: clamp(28px,6vw,44px); margin:0 0 6px; font-weight:900; letter-spacing:.02em; background:linear-gradient(180deg,#fff6da,#ffe066 40%,#ff9e2c 70%,#ff7b00 100%); -webkit-background-clip:text; background-clip:text; color:transparent; text-shadow:0 8px 40px rgba(255,214,102,.35); } .message p{ margin:0; color:var(--muted) }
 
-  .message{ position:absolute; bottom:40px; width:100%; text-align:center; opacity:0; transform:translateY(12px); transition:.8s; }
-  .message.show{ opacity:1; transform:none }
-  .message h1{ font-size: clamp(28px,6vw,44px); margin:0 0 6px; font-weight:900; letter-spacing:.02em; background:linear-gradient(90deg, var(--gold), #fff, var(--pink)); -webkit-background-clip:text; background-clip:text; color:transparent; text-shadow:0 8px 40px rgba(255,214,102,.35); }
-  .message p{ margin:0; color:var(--muted) }
+#confetti{ position:absolute; inset:0; z-index:0; } .count.bump{ animation: countBump .28s ease-out; } @keyframes countBump{ 0%{ transform:translateY(8px) scale(0.98); filter:brightness(1) } 60%{ transform:translateY(0) scale(1.08); filter:brightness(1.15) } 100%{ transform:translateY(0) scale(1); filter:brightness(1) } } </style>
 
-  #confetti{ position:absolute; inset:0; z-index:0; }
-</style>
 </head>
 <body>
   <div class="stage" id="stage">
@@ -49,12 +32,43 @@
       <div class="top-hint">Toca la llama para encender la racha</div>
       <div class="flame-box" id="flameBox" title="Toca para encender la racha">
         <div class="halo" id="halo"></div>
+        <!-- Llama SVG inline con ruido procedural y desplazamiento -->
+        <svg id="flameSVG" class="flame-img" width="140" height="180" viewBox="0 0 140 180" xmlns="http://www.w3.org/2000/svg" aria-label="Llama viva">
+          <defs>
+            <radialGradient id="gCore" cx="50%" cy="65%" r="60%">
+              <stop offset="0%" stop-color="#fff7ad"/>
+              <stop offset="55%" stop-color="#ffd166"/>
+              <stop offset="85%" stop-color="#ff8c33"/>
+              <stop offset="100%" stop-color="#ff5533"/>
+            </radialGradient>
+            <filter id="fFlicker">
+              <feTurbulence type="fractalNoise" baseFrequency="0.012 0.02" numOctaves="2" seed="3" result="noise">
+                <animate attributeName="baseFrequency" dur="2s" values="0.012 0.02;0.016 0.028;0.012 0.02" repeatCount="indefinite"/>
+              </feTurbulence>
+              <feDisplacementMap in="SourceGraphic" in2="noise" scale="8" xChannelSelector="R" yChannelSelector="G">
+                <animate attributeName="scale" dur="1.6s" values="6;10;6" repeatCount="indefinite"/>
+              </feDisplacementMap>
+            </filter>
+          </defs>
+          <!-- Contorno de la llama -->
+          <path filter="url(#fFlicker)" d="M70 6 C55 26 88 36 70 72 C60 92 34 94 34 126 C34 150 50 170 70 170 C90 170 106 150 106 126 C106 94 80 92 70 72 C60 52 86 36 70 6 Z" fill="url(#gCore)"/>
+          <!-- Núcleo blanco suave -->
+          <ellipse cx="70" cy="105" rx="22" ry="30" fill="#ffffff66">
+            <animate attributeName="ry" values="28;32;28" dur="1.2s" repeatCount="indefinite"/>
+          </ellipse>
+          <!-- Chispa superior -->
+          <circle cx="70" cy="16" r="3" fill="#fff9"/>
+        </svg>
+      </div>
         <img id="flameSVG" class="flame-img" src="flame_like_1.svg" alt="Llama Duolingo"/>
       </div>
         <img id="flameSVG" src="flame_like_1.svg" alt="Llama Duolingo"/>
       </div>
       <div class="counter-area" id="counterArea">
         <div class="label">Racha</div>
+        <div class="count" id="count" aria-live="polite">0</div>
+        <div class="suffix">días</div>
+      </div>
         <div class="count" id="count">0</div>
         <div class="suffix">días</div>
       </div>
@@ -63,9 +77,7 @@
         <p>Contigo, cada día cuenta. Gracias por ser mi vida entera.</p>
       </div>
     </div>
-  </div>
-
-  <script>
+  </div>  <script>
   // ===== Params & helpers =====
   const TARGET=100, DURATION=2500, ease=t=>1-Math.pow(1-t,3);
   const countEl=document.getElementById('count');
@@ -98,7 +110,7 @@
     })(start);
   }
 
-  function celebration(){ counterArea.classList.add('done'); msg.classList.add('show'); burstConfetti(); stopHue(); }
+  function celebration(){ msg.classList.add('show'); burstConfetti(); stopHue(); }
 
   // ===== Sparks =====
   function spawnSpark(){
@@ -115,7 +127,48 @@
   function burstConfetti(){spawn(260); setTimeout(()=>spawn(160),340); setTimeout(()=>spawn(160),690);}    
 
   flameBox.addEventListener('click', animateCount);
-</script>
-</body>
-</html>
+  // Auto‑inicio al cargar
+  document.addEventListener('DOMContentLoaded', ()=> { animateCount(); });
+</script><script>
+// --- Override mejorado: subida número a número con iluminación + brillo final ---
+(function(){
+  if(window.__prettyCounterV2) return; window.__prettyCounterV2 = true;
 
+  // util: pintar los dígitos como <span class="digit">X</span>
+  function renderDigits(n){
+    const s = String(n);
+    const frag = document.createDocumentFragment();
+    for(let ch of s){
+      const sp = document.createElement('span'); sp.className='digit'; sp.textContent=ch; frag.appendChild(sp);
+    }
+    countEl.innerHTML=''; countEl.appendChild(frag);
+  }
+
+  // curva temporal: lenta al inicio/fin
+  window.tickDelay = function(i){ var p = i / TARGET; return 24 + 90 * (0.5 - Math.cos(Math.PI * p) / 2); };
+
+  window.animateCount = function(){
+    if(window.running) return; window.running = true; if(typeof startHue==='function') startHue();
+    let i = 0; countEl.classList.remove('final-glow');
+
+    function step(){
+      // bump general
+      countEl.classList.remove('bump'); void countEl.offsetWidth; countEl.classList.add('bump');
+
+      // pintar y encender
+      renderDigits(i);
+      const digits = countEl.querySelectorAll('.digit');
+      digits.forEach(d => d.classList.add('lit'));
+      if(i % 5 === 0 && typeof spawnSpark==='function') spawnSpark();
+
+      if(i < TARGET){ i++; setTimeout(()=>{ digits.forEach(d => d.classList.remove('lit')); step(); }, tickDelay(i)); }
+      else { // final
+        countEl.classList.add('final-glow');
+        if(typeof celebration==='function') celebration();
+      }
+    }
+    step();
+  };
+})();
+</script></body>
+</html>
