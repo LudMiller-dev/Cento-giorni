@@ -3,35 +3,51 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Racha de 100 días — Amor ❤️🔥 (con Lottie)</title>
+  <title>Racha de 100 días — Amor ❤️🔥 (Procedural)</title>
   <style>
     :root{
-      --bg:#0a0b10; --accent:#32d74b; --text:#e8f5e9; --muted:#a1b0a8; --gold:#ffd166; --pink:#ff6fb3;
+      --bg:#0b0f12; --text:#e8f5e9; --muted:#a1b0a8; --gold:#ffd166; --pink:#ff6fb3;
+      --flame1:#ffcc33; --flame2:#ff8833; --flame3:#ff5533;
     }
-    html,body{height:100%}
-    body{margin:0; background:radial-gradient(1200px 1200px at 50% 20%, #111826 0%, var(--bg) 60%); color:var(--text); font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,'Noto Sans',sans-serif; display:grid; place-items:center; overflow:hidden}
-    .stage{ position:relative; width:min(680px, 92vw); aspect-ratio: 1 / 1.6; border-radius:28px; padding:28px; background:linear-gradient(180deg, rgba(50,215,75,0.06), rgba(50,215,75,0.02)); box-shadow: 0 30px 120px rgba(0,0,0,0.5), inset 0 0 40px rgba(50,215,75,0.06); }
-    .top-hint{ position:absolute; top:14px; left:20px; font-size:12px; color:var(--muted); letter-spacing:.04em}
-    .ring{ position:absolute; inset:0; pointer-events:none; filter:blur(30px); opacity:.25; background: radial-gradient(600px 300px at 50% 20%, rgba(50,215,75,.18), transparent 60%); }
+    body{margin:0; height:100%; display:grid; place-items:center; background:radial-gradient(1000px 1000px at 50% 20%, #101820 0%, var(--bg) 70%); font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,'Noto Sans',sans-serif; color:var(--text); overflow:hidden}
+    .stage{ position:relative; width:min(640px,90vw); aspect-ratio:1/1.5; border-radius:28px; padding:28px; box-shadow:0 20px 80px rgba(0,0,0,.6), inset 0 0 60px rgba(255,136,51,.08); background:linear-gradient(180deg, rgba(255,136,51,.05), rgba(0,0,0,.2)); overflow:hidden; }
+    .top-hint{ font-size:12px; color:var(--muted); letter-spacing:.05em; text-align:center; margin-bottom:6px; }
 
-    .flame-wrap{ display:flex; align-items:center; justify-content:center; margin-top:18px; }
-    #flameWrap{ width:160px; height:160px; cursor:pointer; filter: drop-shadow(0 0 16px rgba(255,145,0,.35)); }
-    #flameWrap:hover{ filter: drop-shadow(0 0 22px rgba(255,145,0,.55)); }
+    /* Procedural Flame */
+    .flame-wrap{ position:relative; width:160px; height:220px; margin:0 auto; cursor:pointer; }
+    .flame{
+      position:absolute; bottom:0; left:50%; transform:translateX(-50%);
+      width:120px; height:160px; border-radius:50% 50% 50% 50%/60% 60% 40% 40%;
+      background:radial-gradient(circle at 50% 60%, var(--flame1) 0%, var(--flame2) 40%, var(--flame3) 100%);
+      animation:flicker 1.2s infinite ease-in-out alternate;
+      filter:blur(1px) drop-shadow(0 0 20px rgba(255,140,0,.6));
+    }
+    .flame:before{
+      content:""; position:absolute; top:10px; left:50%; transform:translateX(-50%);
+      width:60px; height:90px; border-radius:50%;
+      background:radial-gradient(circle at 50% 70%, #fff6 0%, transparent 80%);
+      animation:flickerInner 1s infinite ease-in-out alternate;
+    }
+    @keyframes flicker{ from{transform:translateX(-50%) scaleY(1);} to{transform:translateX(-50%) scaleY(1.08);} }
+    @keyframes flickerInner{ from{opacity:.4;} to{opacity:.8;} }
 
-    .counter-area{ display:grid; place-items:center; margin-top:16px; text-align:center; }
+    /* Sparks */
+    .spark{ position:absolute; width:6px; height:6px; background:var(--flame1); border-radius:50%; filter:blur(1px); animation:sparkUp 2s linear forwards; }
+    @keyframes sparkUp{ from{ transform:translateY(0) scale(1); opacity:1; } to{ transform:translateY(-180px) scale(.5); opacity:0; } }
+
+    .counter-area{ margin-top:24px; text-align:center; transition:.5s; }
+    .counter-area.done{opacity:0; transform:translateY(-6px)}
     .label{ font-size:14px; color:var(--muted); letter-spacing:.14em; text-transform:uppercase }
-    .count{ font-size:84px; line-height:1; font-weight:800; letter-spacing:.02em; margin:6px 0 0; background:linear-gradient(180deg, #ffffff, #b7ffe0 40%, #7affc1 60%, #7bd3a6 100%); -webkit-background-clip:text; background-clip:text; color:transparent; text-shadow:0 6px 40px rgba(50,215,75,.25); transition: transform .15s ease; }
+    .count{ font-size:84px; line-height:1; font-weight:800; letter-spacing:.02em; margin:6px 0 0; background:linear-gradient(180deg, #fff, #ffeab7 40%, #ffd166 60%, #ffbb66 100%); -webkit-background-clip:text; background-clip:text; color:transparent; text-shadow:0 6px 40px rgba(255,136,51,.25); transition: transform .15s ease; }
     .suffix{ font-size:18px; color:var(--muted); margin-top:4px }
 
-    .message{ position:absolute; inset:auto 0 28px; display:grid; place-items:center; opacity:0; transform: translateY(12px); transition: all .7s ease; text-align:center; }
-    .message.show{ opacity:1; transform: none; }
-    .message h1{ font-size: clamp(28px, 6vw, 44px); margin:0 0 6px; font-weight:900; letter-spacing:.02em; background: linear-gradient(90deg, var(--gold), #fff, var(--pink)); -webkit-background-clip:text; background-clip:text; color:transparent; text-shadow: 0 8px 40px rgba(255, 214, 102,.35); }
+    .message{ position:absolute; bottom:40px; width:100%; text-align:center; opacity:0; transform:translateY(12px); transition:.8s; }
+    .message.show{ opacity:1; transform:none }
+    .message h1{ font-size: clamp(28px,6vw,44px); margin:0 0 6px; font-weight:900; letter-spacing:.02em; background:linear-gradient(90deg, var(--gold), #fff, var(--pink)); -webkit-background-clip:text; background-clip:text; color:transparent; text-shadow:0 8px 40px rgba(255,214,102,.35); }
     .message p{ margin:0; color:var(--muted) }
 
     #confetti{ position:absolute; inset:0; z-index:0; }
-    .content{ position:relative; z-index:1; }
-
-    @media (prefers-reduced-motion: reduce){ .count{ transition:none } }
+    .content{ position:relative; z-index:1; display:flex; flex-direction:column; align-items:center }
   </style>
 </head>
 <body>
@@ -39,19 +55,16 @@
     <canvas id="confetti"></canvas>
     <div class="content">
       <div class="top-hint">Toca la llama para encender la racha</div>
-      <div class="ring"></div>
-
-      <div class="flame-wrap">
-        <!-- Lottie se renderiza aquí -->
-        <div id="flameWrap" aria-label="Llama de racha" role="img"></div>
+      <div class="flame-wrap" id="flameWrap" title="Toca para encender la racha">
+        <!-- Usamos el SVG de la llama extraído del HAR -->
+        <img id="flameSVG" src="flame_like_1.svg" alt="Llama Duolingo" style="width:120px;height:auto;filter: drop-shadow(0 0 14px rgba(255,145,0,.45));"/>
       </div>
-
-      <div class="counter-area">
+      </div>
+      <div class="counter-area" id="counterArea">
         <div class="label">Racha</div>
         <div class="count" id="count">0</div>
-        <div class="suffix" id="suffix">días</div>
+        <div class="suffix">días</div>
       </div>
-
       <div class="message" id="message">
         <h1>¡Felices 100 días, amor! ✨</h1>
         <p>Contigo, cada día cuenta. Gracias por ser mi vida entera.</p>
@@ -59,64 +72,48 @@
     </div>
   </div>
 
-  <!-- Lottie runtime -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
   <script>
-    // === Parámetros ===
-    const TARGET = 100;           // meta 0→100
-    const DURATION_MS = 2500;     // duración del conteo
-    const EASE = t => 1 - Math.pow(1 - t, 3); // easeOutCubic
+    const TARGET = 100, DURATION_MS = 2500, EASE = t => 1 - Math.pow(1 - t, 3);
+    const countEl=document.getElementById('count');
+    const msg=document.getElementById('message');
+    const counterArea=document.getElementById('counterArea');
+    const flameWrap=document.getElementById('flameWrap');
 
-    // === Contadores y UI ===
-    const countEl = document.getElementById('count');
-    const msg = document.getElementById('message');
-    const flameWrap = document.getElementById('flameWrap');
+    let running=false;
+    function pulse(){ countEl.style.transform='scale(1.06)'; setTimeout(()=>countEl.style.transform='scale(1)',140); }
 
-    function pulse(){ countEl.style.transform = 'scale(1.06)'; setTimeout(()=> countEl.style.transform = 'scale(1)', 140); }
-
-    let running = false;
     function animateCount(){
-      if(running) return; running = true;
-      const start = performance.now();
+      if(running) return; running=true;
+      const start=performance.now();
       (function loop(now){
-        const t = Math.min((now - start) / DURATION_MS, 1);
-        const v = Math.round(TARGET * EASE(t));
-        countEl.textContent = v; if(v % 5 === 0) pulse();
-        if(t < 1) requestAnimationFrame(loop); else celebration();
+        const t=Math.min((now-start)/DURATION_MS,1);
+        const v=Math.round(TARGET*EASE(t));
+        countEl.textContent=v; if(v%5===0) pulse();
+        if(t<1) requestAnimationFrame(loop); else celebration();
       })(start);
+      spawnSparks();
     }
 
-    function celebration(){ msg.classList.add('show'); burstConfetti(); }
+    function celebration(){ counterArea.classList.add('done'); msg.classList.add('show'); burstConfetti(); }
 
-    // === Confetti minimal ===
-    const canvas = document.getElementById('confetti');
-    const ctx = canvas.getContext('2d');
-    let W, H; const parts = [];
-    function resize(){ W = canvas.width = canvas.offsetWidth; H = canvas.height = canvas.offsetHeight; }
-    addEventListener('resize', resize, {passive:true}); resize();
-    function spawn(n=200){
-      for(let i=0;i<n;i++){
-        parts.push({ x: W/2, y: H*0.25, vx:(Math.random()-0.5)*6, vy:(Math.random()*-3)-2, g:0.08+Math.random()*0.08, s:3+Math.random()*3, r:Math.random()*Math.PI, vr:(Math.random()-0.5)*0.2, color:['#7affc1','#32d74b','#b7ffe0','#ffd166','#ff6fb3','#ffffff'][Math.floor(Math.random()*6)] });
-      }
+    // Sparks generator
+    function spawnSparks(){
+      let i=0; const interval=setInterval(()=>{
+        const s=document.createElement('div'); s.className='spark';
+        s.style.left=(70+Math.random()*20)+'px'; s.style.bottom='90px';
+        flameWrap.appendChild(s);
+        setTimeout(()=>s.remove(),2000);
+        if(++i>80) clearInterval(interval);
+      },120);
     }
-    (function step(){ ctx.clearRect(0,0,W,H); parts.forEach(p=>{ p.vy+=p.g; p.x+=p.vx; p.y+=p.vy; p.r+=p.vr; ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.r); ctx.fillStyle=p.color; ctx.fillRect(-p.s/2,-p.s/2,p.s,p.s); ctx.restore(); }); for(let i=parts.length-1;i>=0;i--){ if(parts[i].y > H+40) parts.splice(i,1); } requestAnimationFrame(step); })();
-    function burstConfetti(){ spawn(240); setTimeout(()=>spawn(140), 350); setTimeout(()=>spawn(140), 700); }
 
-    // === Lottie: usa un JSON local que debes colocar junto a este HTML ===
-    // Descarga el archivo (yo te dejé un enlace en el chat) como: streak_duolingo_sessionend.json
-    // y colócalo en la misma carpeta. Luego, descomenta la línea `path:` a continuación.
+    // Confetti
+    const canvas=document.getElementById('confetti'); const ctx=canvas.getContext('2d');
+    let W,H,parts=[]; function resize(){W=canvas.width=canvas.offsetWidth;H=canvas.height=canvas.offsetHeight;} window.addEventListener('resize',resize,{passive:true}); resize();
+    function spawn(n=200){for(let i=0;i<n;i++){parts.push({x:W/2,y:H*0.25,vx:(Math.random()-0.5)*6,vy:(Math.random()*-3)-2,g:0.08+Math.random()*0.08,s:3+Math.random()*3,r:Math.random()*Math.PI,vr:(Math.random()-0.5)*0.2,color:['#ffd166','#ff6fb3','#ffffff','#ff8833','#7affc1'][Math.floor(Math.random()*5)]});}}
+    (function step(){ctx.clearRect(0,0,W,H);parts.forEach(p=>{p.vy+=p.g;p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.r);ctx.fillStyle=p.color;ctx.fillRect(-p.s/2,-p.s/2,p.s,p.s);ctx.restore();}); for(let i=parts.length-1;i>=0;i--){if(parts[i].y>H+40)parts.splice(i,1);} requestAnimationFrame(step);})();
+    function burstConfetti(){spawn(240); setTimeout(()=>spawn(140),350); setTimeout(()=>spawn(140),700);}    
 
-    const lottieOptions = {
-      container: flameWrap,
-      renderer: 'svg',
-      loop: true,
-      autoplay: true,
-      path: 'streak_duolingo_sessionend.json' // <-- Asegúrate de tener el archivo local con ese nombre
-      // Si prefieres incrustar el JSON como objeto, puedes usar: animationData: {...}
-    };
-    const anim = lottie.loadAnimation(lottieOptions);
-
-    // Tap en la llama para contar 0→100
     flameWrap.addEventListener('click', animateCount);
   </script>
 </body>
