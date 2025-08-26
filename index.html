@@ -12,15 +12,22 @@
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif;
       display:grid; place-items:center;
     }
-    .wrap{ text-align:center; padding:16px }
+
+    .wrap{ text-align:center; padding:16px; position:relative }
+    /* Canvas de partículas detrás del contador */
+    #fx{
+      position:absolute; inset:0; pointer-events:none;
+    }
+
     .label{ font-size:12px; color:var(--muted); letter-spacing:.18em; text-transform:uppercase; margin-bottom:10px }
 
     .count{
       display:flex; justify-content:center; gap:8px;
       font-size:84px; font-weight:900; line-height:1;
-      user-select:none; position:relative;
+      user-select:none; position:relative; margin:0 auto;
     }
-    .digit-col{ height:1em; overflow:hidden; min-width:.6em;
+    .digit-col{
+      height:1em; overflow:hidden; min-width:.6em;
       filter:drop-shadow(0 2px 10px rgba(0,0,0,.25));
       visibility:visible;
     }
@@ -29,6 +36,7 @@
       will-change:transform;
       transition: transform .42s cubic-bezier(.25,.8,.4,1);
     }
+    /* Paleta original Duolingo en los dígitos */
     .digit-inner span{
       height:1em; display:flex; align-items:center; justify-content:center;
       background:linear-gradient(180deg,#fff,#ffe066 40%,#ff9e2c 70%,#ff7b00 100%);
@@ -37,8 +45,7 @@
 
     /* Halo breve por toque */
     .count.pulse::after{
-      content:""; position:absolute; inset:-6px -12px;
-      border-radius:20px; pointer-events:none;
+      content:""; position:absolute; inset:-6px -12px; border-radius:20px; pointer-events:none;
       box-shadow:0 0 22px rgba(255,230,102,.6), 0 0 40px rgba(255,158,44,.35);
       animation: touchPulse .28s ease-out;
     }
@@ -48,17 +55,22 @@
       100%{ opacity:0; transform:scale(1.02) }
     }
 
-    /* Destello especial final */
+    /* “Encendido” final (fuego natural) */
     .count.final{
       animation: finaleGlow 1.2s ease-out forwards;
       position:relative;
+    }
+    .count.final .digit-inner span{
+      /* paleta de fuego natural (brasas) */
+      background:linear-gradient(180deg,#fff7d1,#ffd166 40%,#ff8c33 75%,#e64500 100%);
+      -webkit-background-clip:text; background-clip:text; color:transparent;
+      text-shadow:0 0 14px rgba(255,180,80,.9),0 0 30px rgba(255,110,0,.6);
     }
     @keyframes finaleGlow{
       0%{ text-shadow:0 0 0 transparent }
       50%{ text-shadow:0 0 25px rgba(255,230,102,.9),0 0 45px rgba(255,158,44,.7),0 0 70px rgba(255,123,0,.55) }
       100%{ text-shadow:0 0 18px rgba(255,230,102,.7),0 0 34px rgba(255,158,44,.6),0 0 60px rgba(255,123,0,.5) }
     }
-    /* ráfaga suave extra en el final */
     .count.final::before{
       content:""; position:absolute; inset:-10px -18px; border-radius:24px;
       box-shadow:0 0 60px rgba(255,230,102,.55), 0 0 100px rgba(255,158,44,.45), 0 0 140px rgba(255,123,0,.35);
@@ -82,6 +94,9 @@
 </head>
 <body>
   <div class="wrap">
+    <!-- Canvas de chispas -->
+    <canvas id="fx"></canvas>
+
     <div class="label">Racha</div>
 
     <div class="count" id="count" title="Toca para sumar 10">
@@ -98,16 +113,18 @@
   <script>
     const TARGET = 100;
     let current = 0;
+    let running = false;
+
     const countEl = document.getElementById('count');
     const msg = document.getElementById('message');
+
     const cols = [...countEl.querySelectorAll('.digit-col')];
     const inners = cols.map(c => c.querySelector('.digit-inner'));
     const state = [0,0,0]; // [centenas, decenas, unidades]
     let lineH = 0;
-    let running = false;
 
-    // Rellena 0..9 + 0 extra para wrap
-    function build(){
+    // ====== Odómetro ======
+    function buildDigits(){
       inners.forEach(inner => {
         inner.innerHTML = '';
         for(let i=0;i<=10;i++){
@@ -119,7 +136,7 @@
       requestAnimationFrame(() => {
         lineH = inners[0].children[0].getBoundingClientRect().height;
         setNumber(0, true);
-        // oculta centenas si 0
+        // oculta centenas en 0
         cols[0].style.visibility = 'hidden';
       });
     }
@@ -140,23 +157,20 @@
       let wrap = false;
       let visualTarget = targetDigit;
 
-      // Si el objetivo es menor que el actual, rodamos hacia adelante y hacemos reset
+      // Si el objetivo es menor que el actual, rodamos hacia adelante (wrap 9->0)
       if(targetDigit < currentDigit){
         visualTarget = targetDigit + 10;
         wrap = true;
       }
 
-      // movimiento
       inner.style.transform = `translateY(${-visualTarget * lineH}px)`;
 
       if(wrap){
-        // al terminar la transición, reseteamos sin animación al dígito real
         const handler = () => {
           inner.removeEventListener('transitionend', handler);
           const prev = inner.style.transition;
           inner.style.transition = 'none';
           inner.style.transform = `translateY(${-targetDigit * lineH}px)`;
-          // forzar reflow y restaurar transición
           void inner.offsetHeight;
           inner.style.transition = prev;
         };
@@ -169,7 +183,6 @@
     function setNumber(n, instant = false){
       const s = String(n).padStart(3,'0');
       const digits = [ +s[0], +s[1], +s[2] ]; // C, D, U
-
       for(let i=0;i<3;i++){
         if(instant){
           const inner = inners[i];
@@ -183,19 +196,16 @@
       }
     }
 
-    // Hace que la UNIDAD gire una vuelta completa aunque su valor final sea 0,
-    // para que siempre se note el "paso de día".
+    // Hace que la UNIDAD gire una vuelta completa aunque su valor final sea 0
     function spinUnitsOnce(){
       const i = 2; // unidades
       const inner = inners[i];
-      const currentDigit = state[i]; // normalmente 0 en este flujo
+      const currentDigit = state[i];
       inner.style.transitionDuration = durations[i] + 'ms';
-      // gira a current+10 (una vuelta)
       inner.style.transform = `translateY(${- (currentDigit + 10) * lineH}px)`;
       return new Promise(resolve => {
         const handler = () => {
           inner.removeEventListener('transitionend', handler);
-          // reset sin animación a su dígito real (currentDigit)
           const prev = inner.style.transition;
           inner.style.transition = 'none';
           inner.style.transform = `translateY(${- currentDigit * lineH}px)`;
@@ -207,38 +217,121 @@
       });
     }
 
-    // Calcula los dígitos C,D,U de un número
     function digitsOf(n){
       const s = String(n).padStart(3,'0');
       return [ +s[0], +s[1], +s[2] ];
     }
 
-    function addTen(){
-      if(running) return;
-      if(current >= TARGET) return;
+    // ====== Partículas (chispas de encendedor) ======
+    const fx = document.getElementById('fx');
+    const ctx = fx.getContext('2d');
+    let W = 0, H = 0, sparks = [];
+    let emitSparks = true;
 
+    function resizeFX(){
+      const r = fx.getBoundingClientRect();
+      W = fx.width = Math.floor(r.width * devicePixelRatio);
+      H = fx.height = Math.floor(r.height * devicePixelRatio);
+      ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+    }
+    const ro = new ResizeObserver(resizeFX);
+    ro.observe(document.querySelector('.wrap'));
+
+    function spawnSparksBurst(n = 90){
+      if(!emitSparks) return;
+      // Centro del contador
+      const rect = countEl.getBoundingClientRect();
+      const wrapRect = fx.getBoundingClientRect();
+      const cx = (rect.left + rect.width/2) - wrapRect.left;
+      const cy = (rect.top + rect.height*0.4) - wrapRect.top;
+
+      for(let i=0;i<n;i++){
+        const a = Math.random() * Math.PI - Math.PI/2; // abanico hacia arriba
+        const spd = 1.5 + Math.random() * 2.5;
+        sparks.push({
+          x: cx, y: cy,
+          vx: Math.cos(a) * spd,
+          vy: Math.sin(a) * spd - 1.0,
+          g: 0.06 + Math.random()*0.06,
+          life: 420 + Math.random()*260,
+          r: 2 + Math.random()*2.2,
+          c: (Math.random()<.5) ? '#fff7cc' : (Math.random()<.8 ? '#ffd166' : '#ff9e2c')
+        });
+      }
+    }
+
+    function igniteBurst(){
+      // ráfaga grande en el encendido final
+      const rect = countEl.getBoundingClientRect();
+      const wrapRect = fx.getBoundingClientRect();
+      const cx = (rect.left + rect.width/2) - wrapRect.left;
+      const cy = (rect.top + rect.height*0.45) - wrapRect.top;
+      for(let i=0;i<260;i++){
+        const ang = Math.random()*Math.PI - Math.PI/2;
+        const spd = 2 + Math.random()*3.5;
+        sparks.push({
+          x: cx, y: cy,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd - 0.6,
+          g: 0.04 + Math.random()*0.05,
+          life: 520 + Math.random()*380,
+          r: 2.4 + Math.random()*2.4,
+          c: (Math.random()<.4) ? '#fff3c0' : (Math.random()<.8 ? '#ffd166' : '#ff8c33')
+        });
+      }
+    }
+
+    function stepFX(ts){
+      ctx.clearRect(0,0,W,H);
+      for(let i=sparks.length-1;i>=0;i--){
+        const p = sparks[i];
+        p.vy += p.g;
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life -= 16;
+        if(p.life <= 0 || p.y > H+20){ sparks.splice(i,1); continue; }
+        ctx.globalAlpha = Math.max(0, Math.min(1, p.life/600));
+        ctx.fillStyle = p.c;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+        ctx.fill();
+      }
+      requestAnimationFrame(stepFX);
+    }
+    requestAnimationFrame(stepFX);
+
+    // ====== Interacción: +10 por toque ======
+    function addTen(ev){
+      if(running || current >= TARGET) return;
       running = true;
-      countEl.classList.add('pulse'); // halo breve
+
+      // feedback visual / háptico
+      countEl.classList.add('pulse');
       setTimeout(()=>countEl.classList.remove('pulse'), 280);
+      if('vibrate' in navigator){ navigator.vibrate(12); }
+
+      // chispas de encendedor por toque
+      spawnSparksBurst(90);
 
       const next = Math.min(current + 10, TARGET);
 
-      // Determinar cambios por columna
       const [c0,d0,u0] = digitsOf(current);
       const [c1,d1,u1] = digitsOf(next);
 
-      // 1) La unidad siempre gira una vuelta completa
+      // unidades giran una vuelta completa siempre (se “siente” el día)
       const spinU = spinUnitsOnce();
 
-      // 2) Decenas y centenas se mueven si cambian
+      // decenas / centenas cambian si toca
       if(d1 !== d0) moveCol(1, d1);
       if(c1 !== c0) moveCol(0, c1);
 
-      // Cuando termina el spin de unidades, habilitar siguiente toque
       spinU.then(() => {
         current = next;
-        // Si llegamos a 100, activar final
+
         if(current === TARGET){
+          // encendido: detener chispas y brillo permanente cálido
+          emitSparks = false;
+          igniteBurst();                 // ráfaga de ignición
           countEl.classList.add('final');
           msg.classList.add('show');
         }
@@ -246,10 +339,9 @@
       });
     }
 
-    // Init
-    build();
-
-    // Un solo tipo de evento para evitar doble disparo (click + touch)
+    // ====== Init ======
+    buildDigits();
+    // un solo evento para evitar doble disparo en móvil
     countEl.addEventListener('pointerdown', addTen, { passive:true });
   </script>
 </body>
