@@ -2,14 +2,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Racha 100 días — Odómetro Duolingo</title>
+  <title>Racha 100 días — Odómetro Interactivo</title>
   <style>
     :root{ --bg:#0b0f12; --muted:#a1a1a1; }
     html,body{height:100%}
     body{margin:0; background:var(--bg); color:#fff; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif; display:grid; place-items:center}
     .wrap{ text-align:center; padding:16px }
-    .label{ font-size:12px; color:var(--muted); letter-spacing:.18em; text-transform:uppercase; margin-bottom:8px }.count{ display:flex; gap:8px; font-size:84px; font-weight:900; line-height:1; cursor:pointer; user-select:none; }
-.digit-col{ height:1em; overflow:hidden; filter:drop-shadow(0 2px 10px rgba(0,0,0,.25)); }
+    .label{ font-size:12px; color:var(--muted); letter-spacing:.18em; text-transform:uppercase; margin-bottom:8px }.count{ display:flex; justify-content:center; gap:8px; font-size:84px; font-weight:900; line-height:1; cursor:pointer; user-select:none; }
+.digit-col{ height:1em; overflow:hidden; filter:drop-shadow(0 2px 10px rgba(0,0,0,.25)); min-width:.6em; }
 .digit-col.lit{ filter: drop-shadow(0 0 10px rgba(255,230,102,.7)) brightness(1.05); }
 .digit-inner{ display:flex; flex-direction:column; will-change:transform; transition: transform .42s cubic-bezier(.25,.8,.4,1); }
 .digit-inner span{
@@ -20,10 +20,9 @@
 
 .suffix{ font-size:18px; color:var(--muted); margin-top:6px }
 
-.message{ margin-top:18px; font-size:28px; font-weight:800; background:linear-gradient(90deg,#ffe066,#ff9e2c,#ff7b00); -webkit-background-clip:text; color:transparent; opacity:0; transform:translateY(10px); transition:.8s }
+.message{ margin-top:20px; font-size:28px; font-weight:800; background:linear-gradient(90deg,#ffe066,#ff9e2c,#ff7b00); -webkit-background-clip:text; color:transparent; opacity:0; transform:translateY(10px); transition:.8s }
 .message.show{ opacity:1; transform:none }
 
-/* Destello especial al llegar a 100 */
 .count.final{ animation: finaleGlow 1.2s ease-out forwards; }
 @keyframes finaleGlow{
   0%{ text-shadow:0 0 0 transparent }
@@ -36,7 +35,7 @@
 <body>
   <div class="wrap">
     <div class="label">Racha</div>
-    <div class="count" id="count" title="Toca para iniciar">
+    <div class="count" id="count" title="Toca para sumar 10">
       <div class="digit-col"><div class="digit-inner"></div></div>
       <div class="digit-col"><div class="digit-inner"></div></div>
       <div class="digit-col"><div class="digit-inner"></div></div>
@@ -44,107 +43,70 @@
     <div class="suffix">días</div>
     <div class="message" id="message">¡Felices 100 días, amor! ✨</div>
   </div>  <script>
-    const TARGET = 100;
-    const countEl = document.getElementById('count');
-    const msg = document.getElementById('message');
-    const cols = [...countEl.querySelectorAll('.digit-col')];
-    const inners = cols.map(c => c.querySelector('.digit-inner'));
-    let running = false, lineH = 0;
+    const TARGET=100;
+    let current=0;
+    const msg=document.getElementById('message');
+    const countEl=document.getElementById('count');
+    const cols=[...countEl.querySelectorAll('.digit-col')];
+    const inners=cols.map(c=>c.querySelector('.digit-inner'));
+    let lineH=0;
 
-    // Construye 0..9 + 0 extra para wrap suave
+    // Construir 0..9 + extra
     function build(){
-      inners.forEach(inner => {
-        inner.innerHTML = '';
+      inners.forEach(inner=>{
+        inner.innerHTML='';
         for(let i=0;i<=10;i++){
-          const sp = document.createElement('span');
-          sp.textContent = i % 10;
-          inner.appendChild(sp);
+          const sp=document.createElement('span'); sp.textContent=i%10; inner.appendChild(sp);
         }
       });
-      // medir altura de una línea
       requestAnimationFrame(()=>{
-        lineH = inners[0].children[0].getBoundingClientRect().height;
-        setNumber(0, true);
+        lineH=inners[0].children[0].getBoundingClientRect().height;
+        setNumber(0,true);
       });
     }
 
-    // Estado actual de cada columna (centenas, decenas, unidades)
-    const state = [0,0,0];
-    const durations = [520, 460, 400]; // ms: centenas, decenas, unidades
+    const state=[0,0,0];
+    const durations=[520,460,400];
 
-    function moveCol(i, targetDigit){
-      const inner = inners[i];
-      const col = cols[i];
-      inner.style.transitionDuration = durations[i] + 'ms';
-      let current = state[i];
-      // Mostrar/ocultar centenas si es 0
-      if(i===0){ col.style.visibility = targetDigit === 0 ? 'hidden' : 'visible'; }
-
-      let wrap = false;
-      let visualTarget = targetDigit;
-      if(targetDigit < current){ // wrap 9->0 hacia adelante
-        visualTarget = targetDigit + 10;
-        wrap = true;
-      }
-      // encender glow de la columna que cambia
-      col.classList.add('lit');
-      setTimeout(()=>col.classList.remove('lit'), 220);
-
-      // mover
-      inner.style.transform = `translateY(${-visualTarget * lineH}px)`;
-
+    function moveCol(i,targetDigit){
+      const inner=inners[i];
+      const col=cols[i];
+      inner.style.transitionDuration=durations[i]+'ms';
+      let current=state[i];
+      if(i===0){ col.style.visibility= targetDigit===0? 'hidden':'visible'; }
+      let wrap=false, visualTarget=targetDigit;
+      if(targetDigit<current){ visualTarget=targetDigit+10; wrap=true; }
+      col.classList.add('lit'); setTimeout(()=>col.classList.remove('lit'),220);
+      inner.style.transform=`translateY(${-visualTarget*lineH}px)`;
       if(wrap){
-        const handler = () => {
-          inner.removeEventListener('transitionend', handler);
-          // reset sin animación al verdadero dígito 0..9
-          const prev = inner.style.transition;
-          inner.style.transition = 'none';
-          inner.style.transform = `translateY(${-targetDigit * lineH}px)`;
-          // forzar reflow y restaurar transición
-          void inner.offsetHeight; inner.style.transition = prev;
-        };
-        inner.addEventListener('transitionend', handler, {once:true});
+        inner.addEventListener('transitionend',()=>{
+          const prev=inner.style.transition;
+          inner.style.transition='none';
+          inner.style.transform=`translateY(${-targetDigit*lineH}px)`;
+          void inner.offsetHeight; inner.style.transition=prev;
+        },{once:true});
       }
-
-      state[i] = targetDigit;
+      state[i]=targetDigit;
     }
 
-    function setNumber(n, instant=false){
-      const s = String(n).padStart(3,'0');
-      const digits = [parseInt(s[0]), parseInt(s[1]), parseInt(s[2])];
-      if(instant){ inners.forEach(inner=>{ const p = inner.style.transition; inner.style.transition='none'; }); }
+    function setNumber(n,instant=false){
+      const s=String(n).padStart(3,'0');
+      const digits=[+s[0],+s[1],+s[2]];
       for(let i=0;i<3;i++){
-        if(digits[i] !== state[i] || instant){
-          if(instant){
-            const inner = inners[i];
-            inner.style.transition = 'none';
-            inner.style.transform = `translateY(${-digits[i] * lineH}px)`;
-            // restore after a tick
-            requestAnimationFrame(()=>{ inner.style.transition=''; });
-            state[i] = digits[i];
-          } else {
-            moveCol(i, digits[i]);
-          }
-        }
+        if(instant){ inners[i].style.transition='none'; inners[i].style.transform=`translateY(${-digits[i]*lineH}px)`; state[i]=digits[i]; requestAnimationFrame(()=>inners[i].style.transition=''); }
+        else if(digits[i]!==state[i]) moveCol(i,digits[i]);
       }
     }
 
-    function delay(i){ const p = i / TARGET; return 40 + 80 * (0.5 - Math.cos(Math.PI * p) / 2); }
-
-    function animate(){
-      if(running) return; running = true;
-      let i = 0;
-      const loop = () => {
-        setNumber(i);
-        if(i < TARGET){ i++; setTimeout(loop, delay(i)); }
-        else { countEl.classList.add('final'); msg.classList.add('show'); }
-      };
-      loop();
+    function addTen(){
+      if(current>=TARGET) return;
+      current=Math.min(current+10,TARGET);
+      setNumber(current);
+      if(current===TARGET){ countEl.classList.add('final'); msg.classList.add('show'); }
     }
 
-    // iniciar estructura y escuchar toque/click
     build();
-    countEl.addEventListener('click', animate, {passive:true});
-    countEl.addEventListener('touchstart', animate, {passive:true});
+    countEl.addEventListener('click',addTen);
+    countEl.addEventListener('touchstart',addTen);
   </script></body>
 </html>
