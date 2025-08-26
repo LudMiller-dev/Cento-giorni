@@ -4,61 +4,70 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Racha 100 días</title>
   <style>
-    body{
-      margin:0; height:100vh; display:flex; justify-content:center; align-items:center;
-      background:#0b0f12; color:#fff; font-family:system-ui, sans-serif;
-    }
-    .wrap{ text-align:center; }
-    .label{ font-size:14px; color:#aaa; letter-spacing:.15em; text-transform:uppercase; margin-bottom:6px; }
-    .count{ display:flex; justify-content:center; gap:6px; font-size:84px; font-weight:800; line-height:1; position:relative; }
-    .digit-col{ overflow:hidden; height:1em; }
-    .digit-inner{ display:flex; flex-direction:column; transition: transform .4s cubic-bezier(.25,.8,.4,1); }
-    .digit-inner span{ height:1em; display:flex; align-items:center; justify-content:center;
+    body{margin:0;display:flex;justify-content:center;align-items:center;height:100vh;background:#0b0f12;font-family:sans-serif}
+    .wrap{text-align:center}
+    .label{font-size:14px;color:#aaa;text-transform:uppercase;letter-spacing:.15em;margin-bottom:6px}
+    .count{display:flex;gap:6px;font-size:84px;font-weight:800;color:#fff;overflow:hidden}
+    .digit-col{height:1em;overflow:hidden}
+    .digit-inner{display:flex;flex-direction:column;transition:transform .4s cubic-bezier(.25,.8,.4,1)}
+    .digit-inner span{
+      height:1em;display:flex;align-items:center;justify-content:center;
       background:linear-gradient(180deg,#fff,#ffe066 40%,#ff9e2c 70%,#ff7b00 100%);
-      -webkit-background-clip:text; background-clip:text; color:transparent;
+      -webkit-background-clip:text;color:transparent
     }
-    .count.final{ animation: finaleGlow 1s ease-out forwards; }
-    @keyframes finaleGlow{
-      0%{ text-shadow:0 0 0 rgba(255,230,102,0); }
-      50%{ text-shadow:0 0 25px rgba(255,230,102,.9),0 0 45px rgba(255,158,44,.7),0 0 70px rgba(255,123,0,.55); }
-      100%{ text-shadow:0 0 18px rgba(255,230,102,.7),0 0 34px rgba(255,158,44,.6),0 0 60px rgba(255,123,0,.5); }
+    .count.final{animation:glow 1.2s ease-out forwards}
+    @keyframes glow{
+      0%{text-shadow:0 0 0 transparent}
+      50%{text-shadow:0 0 25px rgba(255,230,102,.9),0 0 45px rgba(255,158,44,.7),0 0 70px rgba(255,123,0,.55)}
+      100%{text-shadow:0 0 18px rgba(255,230,102,.7),0 0 34px rgba(255,158,44,.6),0 0 60px rgba(255,123,0,.5)}
     }
-    .suffix{ font-size:18px; color:#aaa; margin-top:4px; }
-    .message{ margin-top:20px; font-size:28px; font-weight:700; background:linear-gradient(90deg,#ffe066,#ff9e2c,#ff7b00); -webkit-background-clip:text; color:transparent; opacity:0; transform:translateY(10px); transition:.8s; }
-    .message.show{ opacity:1; transform:none; }
+    .suffix{font-size:18px;color:#aaa;margin-top:4px}
+    .message{margin-top:20px;font-size:28px;font-weight:700;background:linear-gradient(90deg,#ffe066,#ff9e2c,#ff7b00);-webkit-background-clip:text;color:transparent;opacity:0;transform:translateY(10px);transition:.8s}
+    .message.show{opacity:1;transform:none}
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="label">Racha</div>
-    <div class="count" id="count"></div>
+    <div class="count" id="count">
+      <div class="digit-col"><div class="digit-inner"></div></div>
+      <div class="digit-col"><div class="digit-inner"></div></div>
+      <div class="digit-col"><div class="digit-inner"></div></div>
+    </div>
     <div class="suffix">días</div>
     <div class="message" id="message">¡Felices 100 días, amor! ✨</div>
   </div>  <script>
-    const TARGET=100; const countEl=document.getElementById('count'); const msg=document.getElementById('message');
+    const TARGET=100;
+    const msg=document.getElementById('message');
+    const inners=[...document.querySelectorAll('.digit-inner')];
 
-    function createColumn(){
-      const col=document.createElement('div'); col.className='digit-col';
-      const inner=document.createElement('div'); inner.className='digit-inner';
-      for(let i=0;i<10;i++){ const sp=document.createElement('span'); sp.textContent=i; inner.appendChild(sp);} 
-      col.appendChild(inner); return {col,inner};
-    }
-
-    function renderOdometer(n){
-      countEl.innerHTML='';
-      const s=String(n).padStart(3,'0');
-      for(let i=0;i<s.length;i++){
-        if(i===0 && s[i]==='0') continue; // ocultar centenas en 0
-        const {col,inner}=createColumn();
-        countEl.appendChild(col);
-        inner.style.transform=`translateY(-${parseInt(s[i])*100}%)`;
+    // rellenar con 0-9
+    inners.forEach(inner=>{
+      for(let i=0;i<10;i++){
+        const sp=document.createElement('span');
+        sp.textContent=i;
+        inner.appendChild(sp);
       }
+    });
+
+    function setNumber(n){
+      const s=String(n).padStart(3,'0');
+      s.split('').forEach((digit,i)=>{
+        if(i===0 && s[i]==='0'){ inners[i].parentElement.style.visibility='hidden'; }
+        else { inners[i].parentElement.style.visibility='visible'; }
+        inners[i].style.transform=`translateY(-${digit*100}%)`;
+      });
     }
 
-    function animate(){ let i=0; renderOdometer(i);
-      function step(){ renderOdometer(i); if(i<TARGET){ i++; setTimeout(step,delay(i)); }
-        else { countEl.classList.add('final'); msg.classList.add('show'); }
-      } step(); }
+    function animate(){
+      let i=0;
+      function step(){
+        setNumber(i);
+        if(i<TARGET){ i++; setTimeout(step,delay(i)); }
+        else { document.querySelector('.count').classList.add('final'); msg.classList.add('show'); }
+      }
+      step();
+    }
 
     function delay(i){ let p=i/TARGET; return 40+80*(0.5-Math.cos(Math.PI*p)/2); }
 
