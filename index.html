@@ -10,19 +10,27 @@
     body{
       margin:0; background:var(--bg); color:#fff;
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif;
-      display:grid; place-items:center;
+      overflow-x:hidden;
     }
 
-    .wrap{ text-align:center; padding:16px; position:relative }
-    /* Canvas de partículas detrás del contador */
-    #fx{ position:absolute; inset:0; pointer-events:none; }
+    /* Canvas de partículas a pantalla completa (debajo del contenido) */
+    #fx{
+      position:fixed; inset:0; width:100vw; height:100vh;
+      pointer-events:none; z-index:0;
+    }
+
+    .wrap{
+      position:relative; z-index:1;
+      min-height:100vh; display:flex; flex-direction:column;
+      align-items:center; justify-content:center; text-align:center; padding:16px;
+    }
 
     .label{ font-size:12px; color:var(--muted); letter-spacing:.18em; text-transform:uppercase; margin-bottom:10px }
 
     .count{
       display:flex; justify-content:center; gap:8px;
       font-size:84px; font-weight:900; line-height:1;
-      user-select:none; position:relative; margin:0 auto;
+      user-select:none; margin:0 auto;
     }
     .digit-col{
       height:1em; overflow:hidden; min-width:.6em;
@@ -47,9 +55,7 @@
       -webkit-background-clip:text; background-clip:text; color:transparent;
       text-shadow:0 0 14px rgba(255,180,80,.9),0 0 30px rgba(255,110,0,.6);
     }
-    .count.final{
-      animation: finaleGlow 1.1s ease-out forwards;
-    }
+    .count.final{ animation: finaleGlow 1.1s ease-out forwards; }
     @keyframes finaleGlow{
       0%{ text-shadow:0 0 0 transparent }
       50%{ text-shadow:0 0 25px rgba(255,230,102,.85),0 0 45px rgba(255,158,44,.65),0 0 70px rgba(255,123,0,.5) }
@@ -67,10 +73,10 @@
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <!-- Canvas de chispas -->
-    <canvas id="fx"></canvas>
+  <!-- Canvas full-screen para chispas -->
+  <canvas id="fx"></canvas>
 
+  <div class="wrap">
     <div class="label">Racha</div>
 
     <div class="count" id="count" title="Toca para sumar 10">
@@ -128,8 +134,7 @@
       let wrap = false;
       let visualTarget = targetDigit;
 
-      // Si el objetivo es menor que el actual, rodamos hacia adelante (wrap 9->0)
-      if(targetDigit < currentDigit){
+      if(targetDigit < currentDigit){ // wrap 9->0
         visualTarget = targetDigit + 10;
         wrap = true;
       }
@@ -153,7 +158,7 @@
 
     function setNumber(n, instant = false){
       const s = String(n).padStart(3,'0');
-      const digits = [ +s[0], +s[1], +s[2] ]; // C, D, U
+      const digits = [ +s[0], +s[1], +s[2] ];
       for(let i=0;i<3;i++){
         if(instant){
           const inner = inners[i];
@@ -193,80 +198,89 @@
       return [ +s[0], +s[1], +s[2] ];
     }
 
-    // ====== Partículas (chispas realistas) ======
+    // ====== Partículas (chispas realistas) pantalla completa ======
     const fx = document.getElementById('fx');
-    const ctx = fx.getContext('2d');
+    const ctx = fx.getContext('2d', { alpha:true });
     let W = 0, H = 0, sparks = [];
     let emitSparks = true;
-    let sideRight = true; // alternar derecha/izquierda por toque
+    let sideRight = true; // alterna derecha/izquierda
 
     function resizeFX(){
-      const r = fx.getBoundingClientRect();
-      W = fx.width = Math.floor(r.width * devicePixelRatio);
-      H = fx.height = Math.floor(r.height * devicePixelRatio);
+      const w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+      const h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+      W = fx.width = Math.floor(w * devicePixelRatio);
+      H = fx.height = Math.floor(h * devicePixelRatio);
+      fx.style.width = w + 'px';
+      fx.style.height = h + 'px';
       ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
     }
-    const ro = new ResizeObserver(resizeFX);
-    ro.observe(document.querySelector('.wrap'));
+    window.addEventListener('resize', resizeFX, { passive:true });
+    resizeFX();
 
     function countCenter(){
       const rect = countEl.getBoundingClientRect();
-      const wrapRect = fx.getBoundingClientRect();
-      return {
-        cx: (rect.left + rect.width/2) - wrapRect.left,
-        cy: (rect.top + rect.height*0.45) - wrapRect.top,
-        half: rect.width/2
-      };
+      const cx = rect.left + rect.width/2;
+      const cy = rect.top + rect.height*0.45;
+      const half = rect.width/2;
+      return { cx, cy, half };
     }
 
-    // emite hacia un lado: 'right', 'left' o 'both'
+    // emite hacia 'right', 'left' o 'both'
     function emitBurst(side='right', n=100){
       if(!emitSparks) return;
       const {cx, cy, half} = countCenter();
-      const originRight = { x: cx + half*0.28, y: cy };
-      const originLeft  = { x: cx - half*0.28, y: cy };
+      const originRight = { x: cx + half*0.33, y: cy };
+      const originLeft  = { x: cx - half*0.33, y: cy };
 
       for(let i=0;i<n;i++){
-        // escoger lado según parámetro
-        const useLeft = (side==='left') ? true : (side==='right' ? false : Math.random() < 0.5);
+        const useLeft = (side==='left') ? true : (side==='right' ? false : (i%2===0)); // determinista en 'both'
         const o = useLeft ? originLeft : originRight;
 
-        // velocidad base
         const speed = 1.2 + Math.random()*2.2;
-        // bias lateral por lado (negativo izquierda, positivo derecha)
-        const bias = useLeft ? -(0.9 + Math.random()*0.7) : (0.9 + Math.random()*0.7);
-        // componentes
-        let vx = bias * (0.4 + Math.random()*0.5) * speed;
-        let vy = -(1.6 + Math.random()*1.8) * speed;
+        const spread = 0.45 + Math.random()*0.55;
+
+        // Ángulo base hacia arriba + apertura lateral según el lado
+        const baseAng = -Math.PI/2; // hacia arriba
+        const lateral = (useLeft ? -1 : 1) * (0.35 + Math.random()*0.45);
+        const ang = baseAng + lateral * spread;
+
+        const vx = Math.cos(ang) * speed;
+        const vy = Math.sin(ang) * speed;
 
         sparks.push({
           x:o.x, y:o.y,
           vx, vy,
-          g: 0.05 + Math.random()*0.06,     // gravedad
-          drag: 0.992 + Math.random()*0.006,// fricción
+          g: 0.05 + Math.random()*0.06,
+          drag: 0.992 + Math.random()*0.006,
           life: 520 + Math.random()*360,
           r: 1.8 + Math.random()*2.4,
           hue: (Math.random()<.4) ? 'white' : (Math.random()<.75 ? 'amber' : 'orange'),
           alpha: 1.0,
-          prevX: o.x, prevY: o.y
+          prevX:o.x, prevY:o.y
         });
       }
     }
 
     function igniteBurst(){
-      // ráfaga doble y más grande en encendido final
+      // ráfaga doble simultánea (ambos lados)
       const {cx, cy, half} = countCenter();
-      const originRight = { x: cx + half*0.28, y: cy };
-      const originLeft  = { x: cx - half*0.28, y: cy };
+      const originRight = { x: cx + half*0.33, y: cy };
+      const originLeft  = { x: cx - half*0.33, y: cy };
 
-      const total = 320;
+      const total = 340;
       for(let i=0;i<total;i++){
-        const useLeft = i%2===0;
+        const useLeft = (i % 2 === 0);
         const o = useLeft ? originLeft : originRight;
+
         const speed = 1.6 + Math.random()*3.2;
-        const bias  = (useLeft ? -1 : 1) * (0.8 + Math.random()*0.8);
-        let vx = bias * (0.5 + Math.random()*0.7) * speed;
-        let vy = -(1.4 + Math.random()*2.0) * speed;
+        const spread = 0.55 + Math.random()*0.65;
+        const baseAng = -Math.PI/2;
+        const lateral = (useLeft ? -1 : 1) * (0.35 + Math.random()*0.55);
+        const ang = baseAng + lateral * spread;
+
+        const vx = Math.cos(ang) * speed;
+        const vy = Math.sin(ang) * speed;
+
         sparks.push({
           x:o.x, y:o.y,
           vx, vy,
@@ -303,12 +317,12 @@
         p.life -= 16;
         p.alpha = Math.max(0, Math.min(1, p.life/600));
 
-        if(p.life <= 0 || p.y > H+20){
+        if(p.life <= 0 || p.y > H+20 || p.x < -40 || p.x > W+40){
           sparks.splice(i,1);
           continue;
         }
 
-        // pequeño trazo (cola) + “cabeza”
+        // cola
         ctx.strokeStyle = sparkColor(p.hue, p.alpha*0.6);
         ctx.lineWidth = Math.max(1, p.r*0.6);
         ctx.beginPath();
@@ -316,6 +330,7 @@
         ctx.lineTo(p.x, p.y);
         ctx.stroke();
 
+        // cabeza
         ctx.fillStyle = sparkColor(p.hue, p.alpha);
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
@@ -326,24 +341,22 @@
     requestAnimationFrame(stepFX);
 
     // ====== Interacción: +10 por toque, chispas alternadas ======
-    function addTen(ev){
+    function addTen(){
       if(running || current >= TARGET) return;
       running = true;
 
       if('vibrate' in navigator){ navigator.vibrate(12); }
 
-      // chispas: alternar lado por toque
-      emitBurst(sideRight ? 'right' : 'left', 110);
+      // chispas alternadas por toque
+      emitBurst(sideRight ? 'right' : 'left', 120);
       sideRight = !sideRight;
 
       const next = Math.min(current + 10, TARGET);
       const [c0,d0,u0] = digitsOf(current);
       const [c1,d1,u1] = digitsOf(next);
 
-      // unidades giran una vuelta completa (se “siente” el día)
-      const spinU = spinUnitsOnce();
+      const spinU = spinUnitsOnce(); // unidades siempre ruedan
 
-      // decenas / centenas cambian si toca
       if(d1 !== d0) moveCol(1, d1);
       if(c1 !== c0) moveCol(0, c1);
 
@@ -351,9 +364,8 @@
         current = next;
 
         if(current === TARGET){
-          // encendido: detener chispas, ráfaga doble y brillo permanente cálido
-          emitSparks = false;
-          igniteBurst();                 // ambos lados
+          emitSparks = false;     // ya prendió: no más “encendedor”
+          igniteBurst();          // ráfaga doble
           countEl.classList.add('final');
           msg.classList.add('show');
         }
@@ -361,9 +373,15 @@
       });
     }
 
+    // util
+    function digitsOf(n){
+      const s = String(n).padStart(3,'0');
+      return [ +s[0], +s[1], +s[2] ];
+    }
+
     // ====== Init ======
     buildDigits();
-    // un solo evento para evitar doble disparo en móvil
+    // Un solo evento para evitar doble disparo en móvil
     countEl.addEventListener('pointerdown', addTen, { passive:true });
   </script>
 </body>
