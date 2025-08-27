@@ -10,7 +10,7 @@
     body{
       margin:0; background:var(--bg); color:#fff;
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif;
-      overflow:hidden; /* para que nada haga scroll */
+      overflow:hidden; /* sin scroll */
       display:grid; place-items:center;
     }
 
@@ -24,18 +24,25 @@
       position:relative; z-index:1;
       width:100%; max-width:780px;
       display:flex; flex-direction:column; align-items:center; justify-content:center;
-      text-align:center; padding:16px; gap:10px;
+      text-align:center; padding:16px; gap:12px;
     }
 
     .label{ font-size:12px; color:var(--muted); letter-spacing:.18em; text-transform:uppercase }
 
     .count{
-      display:flex; justify-content:center; align-items:center; gap:10px;
-      font-size:clamp(48px, 10vw, 96px); font-weight:900; line-height:1;
+      display:flex; justify-content:center; align-items:center; gap:12px;
+      font-size:clamp(72px, 14vw, 128px); font-weight:900; line-height:1;
       user-select:none; margin-inline:auto; text-align:center;
+      transition: transform .18s ease, filter .18s ease;
     }
+    /* pulso al tocar: más notorio */
+    .count.pulse{
+      transform: scale(1.02);
+      filter: drop-shadow(0 0 26px rgba(255,230,102,.55)) drop-shadow(0 0 44px rgba(255,158,44,.35));
+    }
+
     .digit-col{
-      height:1em; overflow:hidden; min-width:.6em;
+      height:1em; overflow:hidden; min-width:.62em;
       filter:drop-shadow(0 2px 10px rgba(0,0,0,.25));
       visibility:visible;
     }
@@ -49,13 +56,15 @@
       height:1em; display:flex; align-items:center; justify-content:center;
       background:linear-gradient(180deg,#fff,#ffe066 40%,#ff9e2c 70%,#ff7b00 100%);
       -webkit-background-clip:text; background-clip:text; color:transparent;
+      /* leve glow base para que se vea más “encendido” sin ser final */
+      text-shadow:0 0 10px rgba(255,230,102,.25);
     }
 
     /* Encendido final (fuego natural) */
     .count.final .digit-inner span{
       background:linear-gradient(180deg,#fff7d1,#ffd166 40%,#ff8c33 75%,#e64500 100%);
       -webkit-background-clip:text; background-clip:text; color:transparent;
-      text-shadow:0 0 14px rgba(255,180,80,.9),0 0 30px rgba(255,110,0,.6);
+      text-shadow:0 0 16px rgba(255,180,80,.9),0 0 34px rgba(255,110,0,.6);
     }
     .count.final{ animation: finaleGlow 1.1s ease-out forwards; }
     @keyframes finaleGlow{
@@ -229,7 +238,7 @@
     }
 
     // CHISPAS: 'right', 'left' o 'both'
-    function emitBurst(side='right', n=140){
+    function emitBurst(side='right', n=160){
       if(!emitSparks) return;
       const {cx, cy, half} = countCenter();
       const originRight = { x: cx + half*0.35, y: cy };
@@ -238,7 +247,7 @@
       for(let i=0;i<n;i++){
         const useLeft = (side==='left') ? true : (side==='right' ? false : (i%2===0));
         const o = useLeft ? originLeft : originRight;
-        const speed = 1.6 + Math.random()*2.8;
+        const speed = 1.9 + Math.random()*3.0;           /* ↑ un poco la energía */
         const spread = 0.6 + Math.random()*0.6;
 
         const baseAng = -Math.PI/2;
@@ -251,10 +260,10 @@
         particles.push({
           kind:'spark',
           x:o.x, y:o.y, vx, vy,
-          g: 0.05 + Math.random()*0.06,
+          g: 0.052 + Math.random()*0.06,
           drag: 0.991 + Math.random()*0.006,
-          life: 640 + Math.random()*420,
-          r: 2.4 + Math.random()*3.2,
+          life: 660 + Math.random()*480,
+          r: 3.2 + Math.random()*2.8,                    /* ↑ chispas más grandes */
           hue: (Math.random()<.35) ? 'white' : (Math.random()<.75 ? 'amber' : 'orange'),
           alpha: 1.0,
           prevX:o.x, prevY:o.y,
@@ -262,36 +271,34 @@
       }
     }
 
-    // LLAMAS: cortina desde la parte baja de la pantalla que sube y cruza arriba
-    function startFlameCurtain(durationMs = 2200){
+    // LLAMAS ascendentes (sin cambios, rendimiento OK en gama media)
+    function startFlameCurtain(durationMs = 2600){
       flameCurtain = true;
       const start = performance.now();
 
       function emitFlames(now){
         if(!flameCurtain) return;
         const t = now - start;
-        // Emisión intensa los primeros 1.5s, luego cae
         const k = Math.max(0, 1 - Math.max(0, t-1500)/700);
-        const baseCount = 24 + Math.floor(28 * k); // 24..52 por frame aprox
+        const baseCount = 24 + Math.floor(28 * k);
 
         for(let i=0;i<baseCount;i++){
           const x = Math.random() * (W/devicePixelRatio);
-          const y = (H/devicePixelRatio) + 10; // un poco bajo
+          const y = (H/devicePixelRatio) + 10;
           const up = 2.0 + Math.random()*3.2;
-          const side = (Math.random()-0.5) * 0.9; // leve serpenteo lateral
+          const side = (Math.random()-0.5) * 0.9;
           particles.push({
             kind:'flame',
             x, y, vx:side, vy:-up,
-            g: -0.004,           // leve empuje hacia arriba (negativa)
-            drag: 0.994,         // arrastre suave
+            g: -0.004, drag: 0.994,
             life: 1200 + Math.random()*900,
             r: 6 + Math.random()*16,
-            t0: now + Math.random()*300, // desfase para zigzag
+            t0: now + Math.random()*300,
             alpha: 1.0
           });
         }
         if(t < durationMs) requestAnimationFrame(emitFlames);
-        else flameCurtain = false; // terminada la emisión (las que quedan siguen subiendo hasta morir)
+        else flameCurtain = false;
       }
       requestAnimationFrame(emitFlames);
     }
@@ -320,14 +327,12 @@
           g: 0.044 + Math.random()*0.055,
           drag: 0.99 + Math.random()*0.006,
           life: 800 + Math.random()*520,
-          r: 2.6 + Math.random()*3.2,
+          r: 3.2 + Math.random()*3.4,  /* chispa final también más notoria */
           hue: (Math.random()<.35) ? 'white' : (Math.random()<.75 ? 'amber' : 'orange'),
           alpha: 1.0,
           prevX:o.x, prevY:o.y,
         });
       }
-
-      // y disparamos la cortina de llamas ascendentes
       startFlameCurtain(2600);
     }
 
@@ -337,10 +342,9 @@
       return `rgba(255,142,51,${alpha})`; // orange
     }
 
-    // Render general
     function stepFX(){
       ctx.clearRect(0,0,W,H);
-      ctx.globalCompositeOperation = 'lighter'; // blend aditivo
+      ctx.globalCompositeOperation = 'lighter';
 
       const now = performance.now();
 
@@ -348,13 +352,9 @@
         const p = particles[i];
 
         if(p.kind === 'spark'){
-          // física chispas
-          p.vy += p.g;
-          p.vx *= p.drag;
-          p.vy *= p.drag;
+          p.vy += p.g; p.vx *= p.drag; p.vy *= p.drag;
           p.prevX = p.x; p.prevY = p.y;
-          p.x += p.vx;
-          p.y += p.vy;
+          p.x += p.vx; p.y += p.vy;
           p.life -= 16;
           p.alpha = Math.max(0, Math.min(1, p.life/700));
 
@@ -376,23 +376,17 @@
           ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
           ctx.fill();
         }
-        else { // 'flame'
-          // serpenteo leve (zigzag) para simular convección
+        else { // llama
           const s = Math.sin((now - p.t0) * 0.006);
           p.vx += s * 0.02;
-
-          p.vy += p.g; // g negativa = empuje arriba
-          p.vx *= p.drag; p.vy *= p.drag;
+          p.vy += p.g; p.vx *= p.drag; p.vy *= p.drag;
           p.x += p.vx; p.y += p.vy;
 
           p.life -= 16;
           p.alpha = Math.max(0, Math.min(1, p.life/1300));
 
-          if(p.life <= 0 || p.y < -60){ // si ya salió por arriba
-            particles.splice(i,1); continue;
-          }
+          if(p.life <= 0 || p.y < -60){ particles.splice(i,1); continue; }
 
-          // discos suaves tipo llama (radial)
           const grd = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r*1.4);
           grd.addColorStop(0, `rgba(255,240,180,${p.alpha*0.95})`);
           grd.addColorStop(0.35, `rgba(255,190,100,${p.alpha*0.75})`);
@@ -408,14 +402,16 @@
     }
     requestAnimationFrame(stepFX);
 
-    // ====== Interacción: +10 por toque, chispas alternadas ======
+    // ====== Interacción: +10 por toque ======
     function addTen(){
       if(running || current >= TARGET) return;
       running = true;
 
       if('vibrate' in navigator){ navigator.vibrate(12); }
+      // pulso visual más notorio
+      countEl.classList.add('pulse'); setTimeout(()=>countEl.classList.remove('pulse'), 220);
 
-      // chispas alternadas por toque (derecha/izquierda)
+      // chispas alternadas por toque
       emitBurst(sideRight ? 'right' : 'left', 160);
       sideRight = !sideRight;
 
@@ -439,6 +435,12 @@
         }
         running = false;
       });
+    }
+
+    // util
+    function digitsOf(n){
+      const s = String(n).padStart(3,'0');
+      return [ +s[0], +s[1], +s[2] ];
     }
 
     // ====== Init ======
