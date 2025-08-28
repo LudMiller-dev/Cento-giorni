@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="es">
+<!DOCTYPE html><html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -12,96 +11,95 @@
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,sans-serif;
       overflow:hidden; /* sin scroll */
       display:grid; place-items:center;
-    }
+    }/* Canvas partículas pantalla completa detrás del contenido */
+#fx{
+  position:fixed; inset:0; width:100vw; height:100vh;
+  pointer-events:none; z-index:0;
+}
 
-    /* Canvas partículas pantalla completa detrás del contenido */
-    #fx{
-      position:fixed; inset:0; width:100vw; height:100vh;
-      pointer-events:none; z-index:0;
-    }
+.wrap{
+  position:relative; z-index:1;
+  width:100%; max-width:860px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center; padding:16px; gap:16px;
+}
 
-    .wrap{
-      position:relative; z-index:1;
-      width:100%; max-width:780px;
-      display:flex; flex-direction:column; align-items:center; justify-content:center;
-      text-align:center; padding:16px; gap:12px;
-    }
+.label{ font-size:12px; color:var(--muted); letter-spacing:.18em; text-transform:uppercase }
 
-    .label{ font-size:12px; color:var(--muted); letter-spacing:.18em; text-transform:uppercase }
+.count{
+  display:flex; justify-content:center; align-items:center; gap:16px;
+  font-size:clamp(96px, 18vw, 160px); font-weight:900; line-height:1;
+  user-select:none; margin-inline:auto; text-align:center;
+  transition: transform .18s ease, filter .18s ease;
+}
+/* pulso al tocar: más notorio */
+.count.pulse{
+  transform: scale(1.02);
+  filter: drop-shadow(0 0 30px rgba(255,230,102,.55)) drop-shadow(0 0 48px rgba(255,158,44,.35));
+}
 
-    .count{
-      display:flex; justify-content:center; align-items:center; gap:12px;
-      font-size:clamp(72px, 14vw, 128px); font-weight:900; line-height:1;
-      user-select:none; margin-inline:auto; text-align:center;
-      transition: transform .18s ease, filter .18s ease;
-    }
-    /* pulso al tocar: más notorio */
-    .count.pulse{
-      transform: scale(1.02);
-      filter: drop-shadow(0 0 26px rgba(255,230,102,.55)) drop-shadow(0 0 44px rgba(255,158,44,.35));
-    }
+.digit-col{
+  height:1em; overflow:hidden; min-width:.7em;
+  filter:drop-shadow(0 3px 14px rgba(0,0,0,.28));
+  visibility:visible; transition: transform .36s ease, filter .36s ease;
+}
+/* efecto de vida durante el giro */
+.digit-col.moving{ transform: perspective(600px) rotateX(10deg); filter: drop-shadow(0 6px 22px rgba(255,158,44,.35)) drop-shadow(0 0 30px rgba(255,230,102,.35)); }
+.digit-col.settle{ animation: settleBounce .32s ease-out; }
+@keyframes settleBounce{ 0%{ transform:translateY(-6px) } 60%{ transform:translateY(2px) } 100%{ transform:translateY(0) } }
 
-    .digit-col{
-      height:1em; overflow:hidden; min-width:.62em;
-      filter:drop-shadow(0 2px 10px rgba(0,0,0,.25));
-      visibility:visible;
-    }
-    .digit-inner{
-      display:flex; flex-direction:column;
-      will-change:transform;
-      transition: transform .46s cubic-bezier(.25,.8,.4,1);
-    }
-    /* Paleta Duolingo en dígitos */
-    .digit-inner span{
-      height:1em; display:flex; align-items:center; justify-content:center;
-      background:linear-gradient(180deg,#fff,#ffe066 40%,#ff9e2c 70%,#ff7b00 100%);
-      -webkit-background-clip:text; background-clip:text; color:transparent;
-      /* leve glow base para que se vea más “encendido” sin ser final */
-      text-shadow:0 0 10px rgba(255,230,102,.25);
-    }
+.digit-inner{
+  display:flex; flex-direction:column;
+  will-change:transform;
+  transition: transform .62s cubic-bezier(.22,1,.36,1);
+}
+/* Paleta Duolingo en dígitos */
+.digit-inner span{
+  height:1em; display:flex; align-items:center; justify-content:center;
+  background:linear-gradient(180deg,#fff,#ffe066 40%,#ff9e2c 70%,#ff7b00 100%);
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+  /* leve glow base */
+  text-shadow:0 0 10px rgba(255,230,102,.25);
+}
 
-    /* Encendido final (fuego natural) */
-    .count.final .digit-inner span{
-      background:linear-gradient(180deg,#fff7d1,#ffd166 40%,#ff8c33 75%,#e64500 100%);
-      -webkit-background-clip:text; background-clip:text; color:transparent;
-      text-shadow:0 0 16px rgba(255,180,80,.9),0 0 34px rgba(255,110,0,.6);
-    }
-    .count.final{ animation: finaleGlow 1.1s ease-out forwards; }
-    @keyframes finaleGlow{
-      0%{ text-shadow:0 0 0 transparent }
-      50%{ text-shadow:0 0 25px rgba(255,230,102,.85),0 0 45px rgba(255,158,44,.65),0 0 70px rgba(255,123,0,.5) }
-      100%{ text-shadow:0 0 18px rgba(255,230,102,.65),0 0 34px rgba(255,158,44,.55),0 0 60px rgba(255,123,0,.45) }
-    }
+/* Encendido final (fuego natural) */
+.count.final .digit-inner span{
+  background:linear-gradient(180deg,#fff7d1,#ffd166 40%,#ff8c33 75%,#e64500 100%);
+  -webkit-background-clip:text; background-clip:text; color:transparent;
+  text-shadow:0 0 16px rgba(255,180,80,.9),0 0 34px rgba(255,110,0,.6);
+}
+.count.final{ animation: finaleGlow 1.1s ease-out forwards; }
+@keyframes finaleGlow{
+  0%{ text-shadow:0 0 0 transparent }
+  50%{ text-shadow:0 0 25px rgba(255,230,102,.85),0 0 45px rgba(255,158,44,.65),0 0 70px rgba(255,123,0,.5) }
+  100%{ text-shadow:0 0 18px rgba(255,230,102,.65),0 0 34px rgba(255,158,44,.55),0 0 60px rgba(255,123,0,.45) }
+}
 
-    .suffix{ font-size:18px; color:var(--muted) }
-    .message{
-      font-size:clamp(22px, 4.5vw, 32px); font-weight:800;
-      background:linear-gradient(90deg,#ffe066,#ff9e2c,#ff7b00);
-      -webkit-background-clip:text; color:transparent;
-      opacity:0; transform:translateY(10px); transition:.8s;
-    }
-    .message.show{ opacity:1; transform:none }
+.suffix{ font-size:18px; color:var(--muted) }
+.message{
+  font-size:clamp(22px, 4.5vw, 32px); font-weight:800;
+  background:linear-gradient(90deg,#ffe066,#ff9e2c,#ff7b00);
+  -webkit-background-clip:text; color:transparent;
+  opacity:0; transform:translateY(10px); transition:.8s;
+}
+.message.show{ opacity:1; transform:none }
+
   </style>
 </head>
 <body>
   <!-- Canvas full-screen para chispas y llamas -->
-  <canvas id="fx"></canvas>
+  <canvas id="fx"></canvas>  <div class="wrap">
+    <div class="label">Racha</div><div class="count" id="count" title="Toca para sumar 10">
+  <!-- centenas / decenas / unidades -->
+  <div class="digit-col"><div class="digit-inner"></div></div>
+  <div class="digit-col"><div class="digit-inner"></div></div>
+  <div class="digit-col"><div class="digit-inner"></div></div>
+</div>
 
-  <div class="wrap">
-    <div class="label">Racha</div>
+<div class="suffix">días</div>
+<div class="message" id="message">¡Felices 100 días, amor! ✨</div>
 
-    <div class="count" id="count" title="Toca para sumar 10">
-      <!-- centenas / decenas / unidades -->
-      <div class="digit-col"><div class="digit-inner"></div></div>
-      <div class="digit-col"><div class="digit-inner"></div></div>
-      <div class="digit-col"><div class="digit-inner"></div></div>
-    </div>
-
-    <div class="suffix">días</div>
-    <div class="message" id="message">¡Felices 100 días, amor! ✨</div>
-  </div>
-
-  <script>
+  </div>  <script>
     const TARGET = 100;
     let current = 0;
     let running = false;
@@ -131,13 +129,14 @@
       });
     }
 
-    const durations = [560, 500, 460]; // ms columnas: C, D, U
+    const durations = [780, 720, 660]; // ms columnas: C, D, U (más suave/lento)
 
     function moveCol(i, targetDigit){
       const inner = inners[i];
       const col = cols[i];
       inner.style.transitionProperty = 'transform';
       inner.style.transitionDuration = durations[i] + 'ms';
+      inner.style.transitionTimingFunction = 'cubic-bezier(.22,1,.36,1)';
 
       const currentDigit = state[i];
       if(i === 0){ col.style.visibility = targetDigit === 0 ? 'hidden' : 'visible'; }
@@ -150,19 +149,26 @@
         wrap = true;
       }
 
+      // vida: marcar columna en movimiento
+      col.classList.add('moving');
+
       inner.style.transform = `translateY(${-visualTarget * lineH}px)`;
 
-      if(wrap){
-        const handler = () => {
-          inner.removeEventListener('transitionend', handler);
-          const prev = inner.style.transition;
+      const onEnd = () => {
+        inner.removeEventListener('transitionend', onEnd);
+        // reset por wrap
+        if(wrap){
+          const prevT = inner.style.transition;
           inner.style.transition = 'none';
           inner.style.transform = `translateY(${-targetDigit * lineH}px)`;
-          void inner.offsetHeight;
-          inner.style.transition = prev;
-        };
-        inner.addEventListener('transitionend', handler, { once:true });
-      }
+          void inner.offsetHeight; inner.style.transition = prevT;
+        }
+        // quitar estado moving y hacer pequeño asentamiento
+        col.classList.remove('moving');
+        col.classList.add('settle');
+        setTimeout(()=>col.classList.remove('settle'), 340);
+      };
+      inner.addEventListener('transitionend', onEnd, { once:true });
 
       state[i] = targetDigit;
     }
@@ -189,6 +195,7 @@
       const inner = inners[i];
       const currentDigit = state[i];
       inner.style.transitionDuration = durations[i] + 'ms';
+      inner.style.transitionTimingFunction = 'cubic-bezier(.22,1,.36,1)';
       inner.style.transform = `translateY(${- (currentDigit + 10) * lineH}px)`;
       return new Promise(resolve => {
         const handler = () => {
@@ -196,8 +203,7 @@
           const prev = inner.style.transition;
           inner.style.transition = 'none';
           inner.style.transform = `translateY(${- currentDigit * lineH}px)`;
-          void inner.offsetHeight;
-          inner.style.transition = prev;
+          void inner.offsetHeight; inner.style.transition = prev;
           resolve();
         };
         inner.addEventListener('transitionend', handler, { once:true });
@@ -247,7 +253,7 @@
       for(let i=0;i<n;i++){
         const useLeft = (side==='left') ? true : (side==='right' ? false : (i%2===0));
         const o = useLeft ? originLeft : originRight;
-        const speed = 1.9 + Math.random()*3.0;           /* ↑ un poco la energía */
+        const speed = 1.9 + Math.random()*3.0;
         const spread = 0.6 + Math.random()*0.6;
 
         const baseAng = -Math.PI/2;
@@ -263,7 +269,7 @@
           g: 0.052 + Math.random()*0.06,
           drag: 0.991 + Math.random()*0.006,
           life: 660 + Math.random()*480,
-          r: 3.2 + Math.random()*2.8,                    /* ↑ chispas más grandes */
+          r: 3.2 + Math.random()*2.8,
           hue: (Math.random()<.35) ? 'white' : (Math.random()<.75 ? 'amber' : 'orange'),
           alpha: 1.0,
           prevX:o.x, prevY:o.y,
@@ -271,7 +277,7 @@
       }
     }
 
-    // LLAMAS ascendentes (sin cambios, rendimiento OK en gama media)
+    // LLAMAS ascendentes (rendimiento OK)
     function startFlameCurtain(durationMs = 2600){
       flameCurtain = true;
       const start = performance.now();
@@ -327,7 +333,7 @@
           g: 0.044 + Math.random()*0.055,
           drag: 0.99 + Math.random()*0.006,
           life: 800 + Math.random()*520,
-          r: 3.2 + Math.random()*3.4,  /* chispa final también más notoria */
+          r: 3.2 + Math.random()*3.4,
           hue: (Math.random()<.35) ? 'white' : (Math.random()<.75 ? 'amber' : 'orange'),
           alpha: 1.0,
           prevX:o.x, prevY:o.y,
@@ -343,8 +349,9 @@
     }
 
     function stepFX(){
-      ctx.clearRect(0,0,W,H);
-      ctx.globalCompositeOperation = 'lighter';
+      const ctx2 = ctx;
+      ctx2.clearRect(0,0,W,H);
+      ctx2.globalCompositeOperation = 'lighter';
 
       const now = performance.now();
 
@@ -363,18 +370,18 @@
           }
 
           // cola
-          ctx.strokeStyle = sparkColor(p.hue, p.alpha*0.6);
-          ctx.lineWidth = Math.max(1, p.r*0.7);
-          ctx.beginPath();
-          ctx.moveTo(p.prevX, p.prevY);
-          ctx.lineTo(p.x, p.y);
-          ctx.stroke();
+          ctx2.strokeStyle = sparkColor(p.hue, p.alpha*0.6);
+          ctx2.lineWidth = Math.max(1, p.r*0.7);
+          ctx2.beginPath();
+          ctx2.moveTo(p.prevX, p.prevY);
+          ctx2.lineTo(p.x, p.y);
+          ctx2.stroke();
 
           // cabeza
-          ctx.fillStyle = sparkColor(p.hue, p.alpha);
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
-          ctx.fill();
+          ctx2.fillStyle = sparkColor(p.hue, p.alpha);
+          ctx2.beginPath();
+          ctx2.arc(p.x, p.y, p.r, 0, Math.PI*2);
+          ctx2.fill();
         }
         else { // llama
           const s = Math.sin((now - p.t0) * 0.006);
@@ -387,15 +394,15 @@
 
           if(p.life <= 0 || p.y < -60){ particles.splice(i,1); continue; }
 
-          const grd = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r*1.4);
+          const grd = ctx2.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r*1.4);
           grd.addColorStop(0, `rgba(255,240,180,${p.alpha*0.95})`);
           grd.addColorStop(0.35, `rgba(255,190,100,${p.alpha*0.75})`);
           grd.addColorStop(0.8, `rgba(255,110,10,${p.alpha*0.45})`);
           grd.addColorStop(1, `rgba(255,110,10,0)`);
-          ctx.fillStyle = grd;
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, p.r*1.4, 0, Math.PI*2);
-          ctx.fill();
+          ctx2.fillStyle = grd;
+          ctx2.beginPath();
+          ctx2.arc(p.x, p.y, p.r*1.4, 0, Math.PI*2);
+          ctx2.fill();
         }
       }
       requestAnimationFrame(stepFX);
@@ -409,7 +416,7 @@
 
       if('vibrate' in navigator){ navigator.vibrate(12); }
       // pulso visual más notorio
-      countEl.classList.add('pulse'); setTimeout(()=>countEl.classList.remove('pulse'), 220);
+      countEl.classList.add('pulse'); setTimeout(()=>countEl.classList.remove('pulse'), 240);
 
       // chispas alternadas por toque
       emitBurst(sideRight ? 'right' : 'left', 160);
@@ -421,8 +428,9 @@
 
       const spinU = spinUnitsOnce(); // unidades siempre ruedan
 
-      if(d1 !== d0) moveCol(1, d1);
-      if(c1 !== c0) moveCol(0, c1);
+      // pequeño desfase para cascada estética
+      if(d1 !== d0){ setTimeout(()=>moveCol(1, d1), 60); }
+      if(c1 !== c0){ setTimeout(()=>moveCol(0, c1), 120); }
 
       spinU.then(() => {
         current = next;
@@ -446,6 +454,5 @@
     // ====== Init ======
     buildDigits();
     countEl.addEventListener('pointerdown', addTen, { passive:true });
-  </script>
-</body>
+  </script></body>
 </html>
