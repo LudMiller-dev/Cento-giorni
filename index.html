@@ -429,8 +429,8 @@
       const spinU = spinUnitsOnce(); // unidades siempre ruedan
 
       // pequeño desfase para cascada estética
-      if(d1 !== d0){ setTimeout(()=>moveCol(1, d1), 60); }
-      if(c1 !== c0){ setTimeout(()=>moveCol(0, c1), 120); }
+      if(d1 !== d0){ setTimeout(()=>moveCol(1, d1, touchSide), 60); }
+      if(c1 !== c0){ setTimeout(()=>moveCol(0, c1, touchSide), 120); }
 
       spinU.then(() => {
         current = next;
